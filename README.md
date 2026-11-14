@@ -134,7 +134,8 @@ areas it overlaps. For a few parts they are set under `splits` in
 di Fassa", which can be found by searching Val Gardena, Gröden, Selva, Ortisei and so on. The build
 report lists every part and what became of it.
 
-The app starts on the area picker, with the area used last on top (*Your last ski area*); that
+The tab bar is always there, also on the area picker before an area is open; a tab tapped then
+shows "Choose a ski area first…" on the picker (`askForAreaFirst`). The app starts on the area picker, with the area used last on top (*Your last ski area*); that
 area opens as it was left. Opening another area clears what was chosen in it before (the route
 being followed, the day's start, end and stops; `clearAreaSelections` in `app.js`); saved routes,
 preferences and avoided lifts stay.
@@ -207,7 +208,10 @@ says so.
 Route and Map always show the same route, the active one. The bar at their top says which, and
 opens a menu: **Recent** (the last route to a destination and the last day, so a quick detour
 does not lose the day being followed) and **Saved routes**, plus planning a new route. A saved
-route that is opened goes by its own name at the top (`shownSavedDay` in `account.js`). A day
+route that is opened goes by its own name at the top (`shownSavedDay` in `account.js`). Opening a saved
+route while a day plan that is not saved is on screen keeps that plan under Recent ("Day plan ·
+not saved", `keepUnsavedDay`): the planner holds one day at a time, so it is planned again from
+its settings when picked, with its option and ticks; planning a new day takes its place. A day
 plan that is not saved yet has **★** beside its name in Route and Map: it asks for a name and
 saves it there (`saveRouteFromTab`), the same as **Save this route** in the Plan tab. The active
 route is kept per area (`skirouter:active:<area>`); saved routes are kept on the phone too

@@ -1037,6 +1037,7 @@ function planWithStops(ctx, random, allStops, lunchAt) {
 function planDayClicked(button) {
   clearProgress('day');
   openedDayId = null; // a day of its own now, not the saved one
+  if (typeof forgetUnsavedDay === 'function') forgetUnsavedDay(); // this new day takes its place under Recent
   button.disabled = true;
   const label = button.textContent;
   button.textContent = 'Planning…';

@@ -521,8 +521,8 @@ main {
   padding: 16px 16px 24px;
 }
 
-/* Room for the tab bar at the bottom, once an area is open */
-body.has-area main {
+/* Room for the tab bar at the bottom */
+main {
   padding-bottom: calc(76px + env(safe-area-inset-bottom));
 }
 
@@ -708,6 +708,36 @@ body.has-area main {
 
 .area-fav.on {
   color: var(--fg-e0a100);
+}
+
+/* A tab tapped before an area is open: choose one first */
+.area-first {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--bg-fff3d5);
+  color: var(--midnight);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.area-first .ui-icon {
+  color: var(--skiroute);
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+}
+
+.area-first.flash {
+  animation: area-first-flash 0.6s ease;
+}
+
+@keyframes area-first-flash {
+  0%, 100% { transform: none; }
+  30% { transform: scale(1.03); }
 }
 
 .area-hint {
@@ -3416,25 +3446,22 @@ html.gated #header-live {
 /* ── Tab bar ──────────────────────────────────────────────── */
 
 /* Route · Day plan · Map · Account at the bottom, as in a native app: big
-   targets (with gloves on) and within reach of a thumb. Only once an area
-   is open, and never over the sign-in screen. */
+   targets (with gloves on) and within reach of a thumb. Always there, also
+   on the area picker before an area is open (a tab then asks for an area
+   first); never over the sign-in screen. */
 .tabbar {
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
   z-index: 90; /* under the station picker sheet (100) and a full screen map */
-  display: none;
+  display: flex;
   justify-content: center;
   padding: 2px 6px calc(2px + env(safe-area-inset-bottom));
   background: var(--tabbar);
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
   border-top: 1px solid var(--ice);
-}
-
-body.has-area .tabbar {
-  display: flex;
 }
 
 html.gated .tabbar,
