@@ -200,6 +200,9 @@ async function signedIn(user) {
   }
   document.getElementById('gate-password').value = '';
   ungate();
+  // Signed in: on Plan with the quick route, unless the pass is there and
+  // the day planner was open last time (an area already open on this phone).
+  if (currentArea && !hasSeasonPass()) { setPlanMode('quick'); navTo('plan'); }
   await moveLocalDays();
   loadSavedDays();
 }

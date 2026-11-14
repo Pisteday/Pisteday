@@ -117,6 +117,9 @@ function resetDayPlan() {
 
   let mode = 'quick';
   try { mode = localStorage.getItem(DAY_TAB_KEY) || 'quick'; } catch {}
+  // Without the season pass the planner opens on the quick route, not on
+  // the offer of the pass (the day planner is one tap away).
+  if (!hasSeasonPass()) mode = 'quick';
   setPlanMode(mode);
 }
 
