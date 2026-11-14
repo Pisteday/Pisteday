@@ -117,6 +117,9 @@ function resetDayPlan() {
 
   let mode = 'quick';
   try { mode = localStorage.getItem(DAY_TAB_KEY) || 'quick'; } catch {}
+  // Without the season pass the planner opens on the quick route, not on
+  // the offer of the pass (the day planner is one tap away).
+  if (!hasSeasonPass()) mode = 'quick';
   setPlanMode(mode);
 }
 
@@ -1091,7 +1094,7 @@ function planDayNow(options = {}) {
   dayBus  = typeof o.bus  === 'boolean' ? o.bus  : busAllowed('pref-bus');
   dayDrag = typeof o.drag === 'boolean' ? o.drag : dragAllowed('pref-drag');
 
-  if (!hasSeasonPass()) return fail('The day planner comes with the season pass.');
+  if (!hasSeasonPass()) return fail('The day planner needs a Premium account.');
 
   if (!start) { markMissing(['dstart']); return fail('Choose where your day starts.'); }
   if (t0 == null || t1 == null)     return fail('Enter a start time and a time to be back.');
