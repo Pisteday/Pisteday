@@ -62,11 +62,13 @@
         <span class="sel-label">Date of birth</span>
         <input class="day-input" id="gate-birthdate" type="text" inputmode="numeric" autocomplete="bday" placeholder="dd-mm-yyyy" maxlength="10" oninput="typeBirthdate(this)" required>
       </label>
-      <label class="gate-field" data-for="signup">
-        <span class="sel-label">Country</span>
-        <input class="day-input" id="gate-country" type="text" list="country-list" autocomplete="country-name" placeholder="Type your country" required>
-        <datalist id="country-list"></datalist>
-      </label>
+      <!-- Type to search, then pick the country from the list (its official name) -->
+      <div class="gate-field country-pick" data-for="signup">
+        <label class="sel-label" for="gate-country">Country</label>
+        <input class="day-input" id="gate-country" type="text" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="Type and choose your country"
+          role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="country-options" required>
+        <div class="country-options" id="country-options" role="listbox" hidden></div>
+      </div>
       <label class="gate-check" data-for="signup">
         <input type="checkbox" id="gate-terms">
         <span>I agree to the <a href="terms.html" target="_blank" rel="noopener">terms</a> and the <a href="privacy.html" target="_blank" rel="noopener">privacy policy</a>. I am 16 or older.</span>

@@ -161,12 +161,12 @@ async function gateSubmit(event) {
       await signedIn(data.user);
     } else if (mode === 'signup') {
       const birthdate = parseBirthdate(document.getElementById('gate-birthdate').value);
-      const country = countryCode(document.getElementById('gate-country').value);
+      const country = document.getElementById('gate-country').dataset.code || null; // only one picked from the list
       if (password.length < 8) return fail('Choose a password of at least 8 characters.');
       if (!birthdate) return fail('Enter your date of birth as day-month-year, e.g. 18-08-1995.');
       if (ageOn(birthdate) < MIN_AGE) return fail(`SkiRouter accounts are for ${MIN_AGE} and over.`);
       if (ageOn(birthdate) > 120) return fail('Check your date of birth.');
-      if (!country) return fail('Type your country and pick it from the list.');
+      if (!country) return fail('Choose your country from the list.');
       if (!document.getElementById('gate-terms').checked) return fail('Agree to the terms and the privacy policy to create an account.');
       const { data, error } = await sb.auth.signUp({ email, password, options: { data: { birthdate, country }, emailRedirectTo: back } });
       if (error) return fail(/registered|exists/i.test(error.message) ? 'There is already an account with this email address. Sign in instead.' : `Could not create the account: ${error.message}`);
@@ -799,16 +799,68 @@ function countryCode(text) {
   return hit?.code || null;
 }
 
+// The sign-up country: typing filters the list under the field; a country
+// counts only once it is picked from that list (its official name goes in
+// the field, its code in data-code). Typing a name in full picks it too.
+function pickCountry(country) {
+  const field = document.getElementById('gate-country');
+  field.value = country.name;
+  field.dataset.code = country.code;
+  showCountryOptions([]);
+}
+
+function showCountryOptions(matches) {
+  const box = document.getElementById('country-options');
+  box.innerHTML = matches.map(c => `<button type="button" role="option" data-code="${c.code}">${escapeHtml(c.name)}</button>`).join('');
+  box.hidden = !matches.length;
+  document.getElementById('gate-country').setAttribute('aria-expanded', String(!!matches.length));
+}
+
+function setUpCountryPicker(field, options) {
+  const fold = s => String(s || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const matching = () => {
+    const typed = fold(field.value);
+    if (!typed) return options;
+    const starts = options.filter(c => fold(c.name).startsWith(typed) || fold(c.en).startsWith(typed));
+    const holds = options.filter(c => !starts.includes(c) && (fold(c.name).includes(typed) || fold(c.en).includes(typed) || c.code.toLowerCase() === typed));
+    return [...starts, ...holds];
+  };
+  field.addEventListener('input', () => {
+    delete field.dataset.code; // typed over: not chosen any more
+    showCountryOptions(matching());
+  });
+  field.addEventListener('focus', () => { field.select(); showCountryOptions(options); });
+  field.addEventListener('blur', () => {
+    // Typed in full (or its code): that is the country
+    const code = field.dataset.code || countryCode(field.value);
+    const country = options.find(c => c.code === code);
+    if (country) pickCountry(country); else showCountryOptions([]);
+  });
+  field.addEventListener('keydown', event => {
+    if (event.key !== 'Enter') return;
+    const first = matching()[0];
+    if (!field.dataset.code && first) { event.preventDefault(); pickCountry(first); }
+  });
+  const box = document.getElementById('country-options');
+  // Before the field loses focus, or the list is gone when the tap lands
+  box.addEventListener('pointerdown', event => event.preventDefault());
+  box.addEventListener('click', event => {
+    const code = event.target.closest('[data-code]')?.dataset.code;
+    const country = options.find(c => c.code === code);
+    if (country) { pickCountry(country); field.blur(); }
+  });
+}
+
 function fillCountries() {
   const options = countryList();
-  // Sign up: type it, with suggestions; the phone's own country to start with.
-  const list = document.getElementById('country-list');
-  if (list && !list.options.length) {
-    list.innerHTML = options.map(o => `<option value="${o.name}"></option>`).join('');
-    const field = document.getElementById('gate-country');
+  // Sign up: type to search and pick from the list; the phone's own country to start with.
+  const field = document.getElementById('gate-country');
+  if (field && !field.dataset.ready) {
+    field.dataset.ready = '1';
     const region = (navigator.language || '').split('-')[1]?.toUpperCase();
     const own = options.find(o => o.code === region);
-    if (field && !field.value && own) field.value = own.name;
+    if (own) pickCountry(own);
+    setUpCountryPicker(field, options);
   }
   // The account screen: a list to change it.
   const select = document.getElementById('acc-country');
