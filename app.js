@@ -600,6 +600,7 @@ async function selectArea(areaMeta) {
 // The header holds the area's name (tap it to change area) and its lift
 // status; its facts (km, lifts, altitude) sit above the area map.
 function applyAreaToHeader(area) {
+  document.getElementById('area-first').style.display = 'none';
   document.getElementById('header-area').textContent = area.name;
   const stats = area.stats || {};
   document.getElementById('stat-km').textContent      = stats.pistesKm != null ? `${stats.pistesKm} km` : '—';
@@ -730,8 +731,21 @@ function storedActiveRoute() {
   try { return localStorage.getItem(ACTIVE_KEY_PREFIX + (currentArea?.id || '')) || null; } catch { return null; }
 }
 
+// A tab tapped before a ski area is open: say that one is needed first, on
+// the area picker (where the app starts).
+const AREA_FIRST = { plan: 'plan a route', route: 'see your route', map: 'see the map', account: 'open the settings' };
+function askForAreaFirst(tab) {
+  const note = document.getElementById('area-first');
+  document.getElementById('area-first-text').textContent = `Choose a ski area first, then you can ${AREA_FIRST[tab] || 'go on'}.`;
+  note.style.display = 'flex';
+  note.classList.remove('flash');
+  void note.offsetWidth; // start the animation again on every tap
+  note.classList.add('flash');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 function navTo(tab) {
-  if (!currentArea) return;
+  if (!currentArea) return askForAreaFirst(tab);
   const from = currentScreen();
   if (from === 'prefs') applyPrefsChanges();
   if (tab === 'account') {
