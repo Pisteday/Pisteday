@@ -4159,3 +4159,46 @@ body.no-header main {
 .pass-consent a {
   color: inherit;
 }
+
+/* Sign up: the country list under its field */
+.country-pick {
+  position: relative;
+}
+
+.country-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  max-height: 230px;
+  margin-top: 4px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1.5px solid var(--ice);
+  border-radius: 10px;
+  background: var(--bg-ffffff);
+  box-shadow: var(--shadow);
+}
+
+.country-options button {
+  display: block;
+  width: 100%;
+  padding: 11px 12px;
+  border: 0;
+  border-bottom: 1px solid var(--ice);
+  background: none;
+  color: var(--midnight);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.country-options button:last-child {
+  border-bottom: 0;
+}
+
+.country-options button:active {
+  background: var(--snow);
+}
