@@ -748,8 +748,10 @@ function storedActiveRoute() {
 
 // A tab tapped before a ski area is open: say that one is needed first, on
 // the area picker (where the app starts).
-const AREA_FIRST = { plan: 'plan a route', route: 'see your route', map: 'see the map', account: 'open the settings' };
+// Settings needs no area: your account, preferences and the guide are there.
+const AREA_FIRST = { plan: 'plan a route', route: 'see your route', map: 'see the map' };
 function askForAreaFirst(tab) {
+  if (currentScreen() !== 'picker') showAreaPicker(); // from Settings: back to the picker
   const note = document.getElementById('area-first');
   document.getElementById('area-first-text').textContent = `Choose a ski area first, then you can ${AREA_FIRST[tab] || 'go on'}.`;
   note.style.display = 'flex';
@@ -760,7 +762,7 @@ function askForAreaFirst(tab) {
 }
 
 function navTo(tab) {
-  if (!currentArea) return askForAreaFirst(tab);
+  if (!currentArea) return tab === 'account' ? openSettings() : askForAreaFirst(tab);
   const from = currentScreen();
   if (from === 'prefs') applyPrefsChanges();
   if (tab === 'account') {
@@ -1585,7 +1587,7 @@ function renderSettingsMenu() {
     avoidedLifts.size + avoidedPistes.size ? `${avoidedLifts.size + avoidedPistes.size} avoided` : '',
   ].filter(Boolean).join(' · ');
   document.getElementById('settings-app-sum').textContent = `Appearance: ${{ auto: 'auto', light: 'light', dark: 'dark', sun: 'sun (high contrast)' }[prefs.theme] || 'auto'}`;
-  document.getElementById('settings-area-sum').textContent = currentArea ? `${currentArea.name} · tap to choose another` : '';
+  document.getElementById('settings-area-sum').textContent = currentArea ? `${currentArea.name} · tap to choose another` : 'Tap to choose one';
   const signedIn = typeof accountsOn !== 'undefined' && accountsOn && account;
   document.getElementById('settings-account-group').style.display = signedIn ? '' : 'none';
   if (signedIn) {
