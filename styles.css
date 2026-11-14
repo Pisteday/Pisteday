@@ -4234,14 +4234,92 @@ body.no-header main {
   color: var(--accent);
 }
 
-.gate-plan ul {
-  margin: 0 0 0 16px;
+/* What an account gives: an icon, a few words, a line under them */
+.benefits {
+  list-style: none;
+  margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 8px;
+}
+
+.benefits li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.benefit-ico {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: var(--bg-e3efff);
+  color: var(--accent);
+}
+
+.benefit-ico .ui-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.benefits li > span:last-child {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.benefits strong {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--midnight);
+  line-height: 1.2;
+}
+
+.benefits small {
+  font-size: 0.74rem;
+  color: var(--fg-6a7d92);
+  line-height: 1.25;
+}
+
+.benefits-plus {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--fg-6a7d92);
+}
+
+/* On the Premium card itself: a little larger */
+.benefits-big {
+  gap: 12px;
+  margin: 0 0 16px;
+}
+
+.benefits-big .benefit-ico {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+}
+
+.benefits-big .benefit-ico .ui-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.benefits-big strong {
+  font-size: 0.95rem;
+}
+
+.benefits-big small {
   font-size: 0.8rem;
-  color: var(--fg-4a5d72);
+}
+
+#acc-buy .benefits-big {
+  margin-top: 12px;
 }
 
 .gate-plan em {

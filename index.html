@@ -76,10 +76,10 @@
           <input type="radio" name="gate-plan" value="free" checked>
           <span class="gate-plan-body">
             <span class="gate-plan-head"><strong>Free</strong><small>€0</small></span>
-            <ul>
-              <li>Route to any lift or place, in every ski area</li>
-              <li>Step by step and on the map, with live lift status</li>
-              <li>Works offline on the mountain</li>
+            <ul class="benefits">
+              <li><span class="benefit-ico"><i data-i="route"></i></span><span><strong>Route to any lift or place</strong><small>In every ski area</small></span></li>
+              <li><span class="benefit-ico"><i data-i="map"></i></span><span><strong>Step by step and on the map</strong><small>With live lift status</small></span></li>
+              <li><span class="benefit-ico"><i data-i="offline"></i></span><span><strong>Works offline</strong><small>On the mountain, without a signal</small></span></li>
             </ul>
           </span>
         </label>
@@ -87,12 +87,14 @@
           <input type="radio" name="gate-plan" value="premium">
           <span class="gate-plan-body">
             <span class="gate-plan-head"><strong>Premium</strong><small id="gate-plan-price"></small></span>
-            <ul>
-              <li>Everything in Free</li>
-              <li>Plan a whole ski day: the km you want, lunch and stops</li>
-              <li>Save your routes and plan them again any time</li>
+            <span class="benefits-plus">Everything in Free, plus</span>
+            <ul class="benefits">
+              <li><span class="benefit-ico"><i data-i="day"></i></span><span><strong>Your whole ski day planned</strong><small>First lift to last run, the km you want</small></span></li>
+              <li><span class="benefit-ico"><i data-i="food"></i></span><span><strong>Lunch and stops on the way</strong><small>A restaurant, a viewpoint, a snow park</small></span></li>
+              <li><span class="benefit-ico"><i data-i="layers"></i></span><span><strong>Several days to choose from</strong><small>At your pace, in the colours you like</small></span></li>
+              <li><span class="benefit-ico"><i data-i="star"></i></span><span><strong>Your routes saved</strong><small>Plan them again any time</small></span></li>
             </ul>
-            <em>You pay after creating your account. One payment per season, no subscription.</em>
+            <em>One payment per season, no subscription. You pay after creating your account.</em>
           </span>
         </label>
       </fieldset>
@@ -127,6 +129,12 @@
       <div class="prefs-label"><i data-i="ticket"></i> Membership</div>
       <div class="acc-pass" id="acc-pass"></div>
       <div id="acc-buy">
+        <ul class="benefits benefits-big">
+              <li><span class="benefit-ico"><i data-i="day"></i></span><span><strong>Your whole ski day planned</strong><small>First lift to last run, the km you want</small></span></li>
+              <li><span class="benefit-ico"><i data-i="food"></i></span><span><strong>Lunch and stops on the way</strong><small>A restaurant, a viewpoint, a snow park</small></span></li>
+              <li><span class="benefit-ico"><i data-i="layers"></i></span><span><strong>Several days to choose from</strong><small>At your pace, in the colours you like</small></span></li>
+              <li><span class="benefit-ico"><i data-i="star"></i></span><span><strong>Your routes saved</strong><small>Plan them again any time</small></span></li>
+        </ul>
         <label class="pass-consent"><input type="checkbox" onchange="passConsentChanged(this)"> <span>I want Premium (the season pass) to start straight away and understand that I then lose my 14-day right of withdrawal (<a href="terms.html" target="_blank" rel="noopener">terms</a>).</span></label>
         <button class="plan-btn" type="button" onclick="buySeasonPass(this)" disabled>Get Premium</button>
         <div class="paywall-msg error-msg" style="display:none"></div>
@@ -391,19 +399,18 @@
   <!-- Without the season pass: what the day planner does, and the pass -->
   <div class="card paywall" id="day-paywall" style="display:none">
     <div class="card-title"><i data-i="ticket"></i> Premium account needed</div>
-    <p class="paywall-why">Planning a whole day and saving routes are part of <strong>Premium</strong>. You have a free account, which plans routes to a destination.</p>
-    <div class="prefs-label">With Premium you get</div>
-    <ul class="paywall-list">
-      <li>A full day from first lift to last run, with the km you want to ski</li>
-      <li>Lunch at a mountain restaurant and stops along the way</li>
-      <li>Several routes to choose from, at your pace</li>
-      <li>Your routes saved in your account, to plan again any time</li>
+    <p class="paywall-why">The day planner is part of <strong>Premium</strong>. You have a free account.</p>
+    <ul class="benefits benefits-big">
+              <li><span class="benefit-ico"><i data-i="day"></i></span><span><strong>Your whole ski day planned</strong><small>First lift to last run, the km you want</small></span></li>
+              <li><span class="benefit-ico"><i data-i="food"></i></span><span><strong>Lunch and stops on the way</strong><small>A restaurant, a viewpoint, a snow park</small></span></li>
+              <li><span class="benefit-ico"><i data-i="layers"></i></span><span><strong>Several days to choose from</strong><small>At your pace, in the colours you like</small></span></li>
+              <li><span class="benefit-ico"><i data-i="star"></i></span><span><strong>Your routes saved</strong><small>Plan them again any time</small></span></li>
     </ul>
     <div class="paywall-price" id="paywall-price"></div>
     <label class="pass-consent"><input type="checkbox" onchange="passConsentChanged(this)"> <span>I want Premium (the season pass) to start straight away and understand that I then lose my 14-day right of withdrawal (<a href="terms.html" target="_blank" rel="noopener">terms</a>).</span></label>
     <button class="plan-btn" type="button" onclick="buySeasonPass(this)" disabled>Get Premium</button>
     <div class="paywall-msg error-msg" style="display:none"></div>
-    <p class="paywall-note">One payment per season, no subscription. iDEAL, Bancontact, card and more via Mollie.</p>
+    <p class="paywall-note">One payment, no subscription. iDEAL, Bancontact, card and more via Mollie.</p>
   </div>
 
   <!-- Day planner card -->

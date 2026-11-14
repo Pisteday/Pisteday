@@ -377,7 +377,7 @@ function renderAccountAccess() {
     document.getElementById('day-result').style.display = paid ? '' : 'none';
     document.getElementById('mode-day-lock').hidden = paid;
     if (!paid) document.getElementById('day-choice').style.display = 'none';
-    document.getElementById('paywall-price').textContent = `Premium · €${accountCfg.seasonPrice || '9.99'} for the ${seasonLabel()} season`;
+    document.getElementById('paywall-price').textContent = `€${accountCfg.seasonPrice || '9.99'} · ${seasonLabel()} season`;
   }
   const save = document.getElementById('save-day');
   if (save) save.style.display = paid ? '' : 'none'; // without accounts: on this phone
@@ -760,7 +760,7 @@ function renderAccount() {
     ? `<strong>${ui('done')} Test phase</strong><span>Everything is free while SkiRouter is being tested: the day planner and saving your days included. Nothing to pay.</span>`
     : paid
     ? `<strong>${ui('done')} Premium account</strong><span>Day planner and saved routes until ${escapeHtml(formatDay(new Date(new Date(account.paid_until) - 1)))}</span>`
-    : `<strong>Free account</strong><span>Routes to a destination. Premium adds the day planner and saving your routes: €${escapeHtml(accountCfg.seasonPrice || '9.99')} for the ${seasonLabel()} season, one payment, no subscription.</span>`;
+    : `<strong>Free account</strong><span>Premium is €${escapeHtml(accountCfg.seasonPrice || '9.99')} for the ${seasonLabel()} season: one payment, no subscription. It adds:</span>`;
   document.getElementById('acc-buy').style.display = paid ? 'none' : '';
 }
 
