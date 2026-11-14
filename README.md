@@ -17,6 +17,10 @@ All work happens on GitHub; nothing needs to run on a local machine.
 
 A push to `main` goes live immediately, so work on a branch and merge when it is ready.
 
+Every pull request (and push to `main`) runs **Check** (`.github/workflows/check.yml`): every
+script parses, every JSON file is valid, and every file the service worker caches on install
+exists (`tools/check-shell.mjs`; one missing file would stop the app from updating).
+
 ## Published site (GitHub Pages)
 
 Only the planner files go online: `index.html`, `config.js`, `account.js`, `icons.js`, `liftmatch.js`, `map.js`, `dayplan.js`,

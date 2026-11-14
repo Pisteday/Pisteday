@@ -67,6 +67,8 @@ export function compileArea(input, meta = {}) {
     const flip = a.e != null && b.e != null && a.e > b.e + 5;
     const [bottom, top] = flip ? [b, a] : [a, b];
     lift.bottom = bottom; lift.top = top;
+    // Drawn top → bottom: its station names are the other way round too.
+    if (flip) [lift.bottomName, lift.topName] = [lift.topName, lift.bottomName];
     lift.bottomC = flip ? lift.coords[lift.coords.length - 1] : lift.coords[0];
     lift.topC = flip ? lift.coords[0] : lift.coords[lift.coords.length - 1];
     lift.lengthM = polylineLength(lift.coords.map(proj));
