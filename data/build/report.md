@@ -1,4 +1,4 @@
-# Europe build — 2026-10-31
+# Europe build — 2026-11-14
 
 Built **1** ski areas (at least 5 lifts and 10 km of pistes); 0 smaller or empty areas left out.
 
@@ -18,7 +18,7 @@ In the app: **ok** 1
 
 | Area | Country | Lifts | km | Connected | Parts | Label | Lifts outside the main network |
 |---|---|---|---|---|---|---|---|
-| KitzSki | AT | 50 | 184 | 90% | 46 | automatisch | D10 E2 E3 H11 E1 |
+| KitzSki | AT | 50 | 185 | 90% | 46 | automatisch | D10 E2 E1 E3 H11 |
 
 ## The 25 biggest areas with gaps (label onvolledig)
 

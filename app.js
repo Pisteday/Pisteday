@@ -56,6 +56,20 @@ const RIDE_DOWN_PENALTY = 60;
 // other way (and the route says so).
 const UNWANTED_PENALTY = 120;
 
+// A lift's station names. The map data lists a lift's stations in no fixed
+// order, so a name can end up on the wrong side ("Maierlbahn Talstation" as
+// the top): a top called valley station, or a bottom called mountain
+// station, goes to the other side.
+const VALLEY_NAME = /talstation|valley station|station aval|stazione a valle/i;
+const SUMMIT_NAME = /bergstation|mountain station|top station|station amont|stazione a monte/i;
+function stationNames(lift) {
+  const name = lift.naam || lift.liftNr;
+  let bottom = lift.vertrektBij || lift.liftNr, top = lift.komtAanBij || lift.liftNr;
+  if (VALLEY_NAME.test(top) && !VALLEY_NAME.test(bottom)) [bottom, top] = [top, /^bottom station /i.test(bottom) ? `Top station ${name}` : bottom];
+  else if (SUMMIT_NAME.test(bottom) && !/^bottom station /i.test(bottom) && !SUMMIT_NAME.test(top)) [bottom, top] = [/^top station /i.test(top) ? `Bottom station ${name}` : top, bottom];
+  return [bottom, top];
+}
+
 function buildFromSkimapData(area) {
   const stations = {};
   const liften = area.liften || [];
@@ -74,8 +88,9 @@ function buildFromSkimapData(area) {
     if (!lift.liftNr) return;
     const bottomId = `${lift.liftNr}-onder`;
     const topId    = `${lift.liftNr}-boven`;
-    stations[bottomId] = { name: lift.vertrektBij || lift.liftNr, alt: null };
-    stations[topId]    = { name: lift.komtAanBij  || lift.liftNr, alt: null };
+    const [bottomName, topName] = stationNames(lift);
+    stations[bottomId] = { name: bottomName, alt: null };
+    stations[topId]    = { name: topName, alt: null };
 
     addEdge({
       from: bottomId, to: topId,
@@ -733,8 +748,10 @@ function storedActiveRoute() {
 
 // A tab tapped before a ski area is open: say that one is needed first, on
 // the area picker (where the app starts).
-const AREA_FIRST = { plan: 'plan a route', route: 'see your route', map: 'see the map', account: 'open the settings' };
+// Settings needs no area: your account, preferences and the guide are there.
+const AREA_FIRST = { plan: 'plan a route', route: 'see your route', map: 'see the map' };
 function askForAreaFirst(tab) {
+  if (currentScreen() !== 'picker') showAreaPicker(); // from Settings: back to the picker
   const note = document.getElementById('area-first');
   document.getElementById('area-first-text').textContent = `Choose a ski area first, then you can ${AREA_FIRST[tab] || 'go on'}.`;
   note.style.display = 'flex';
@@ -745,7 +762,7 @@ function askForAreaFirst(tab) {
 }
 
 function navTo(tab) {
-  if (!currentArea) return askForAreaFirst(tab);
+  if (!currentArea) return tab === 'account' ? openSettings() : askForAreaFirst(tab);
   const from = currentScreen();
   if (from === 'prefs') applyPrefsChanges();
   if (tab === 'account') {
@@ -1570,7 +1587,7 @@ function renderSettingsMenu() {
     avoidedLifts.size + avoidedPistes.size ? `${avoidedLifts.size + avoidedPistes.size} avoided` : '',
   ].filter(Boolean).join(' · ');
   document.getElementById('settings-app-sum').textContent = `Appearance: ${{ auto: 'auto', light: 'light', dark: 'dark', sun: 'sun (high contrast)' }[prefs.theme] || 'auto'}`;
-  document.getElementById('settings-area-sum').textContent = currentArea ? `${currentArea.name} · tap to choose another` : '';
+  document.getElementById('settings-area-sum').textContent = currentArea ? `${currentArea.name} · tap to choose another` : 'Tap to choose one';
   const signedIn = typeof accountsOn !== 'undefined' && accountsOn && account;
   document.getElementById('settings-account-group').style.display = signedIn ? '' : 'none';
   if (signedIn) {
@@ -2026,7 +2043,7 @@ function stepElement(edge, index, clock, next) {
       <div class="piste-sign sign-${diff}${short ? (nr.replace(/\s+/g, '').length === 3 ? ' sign-long' : '') : ' sign-noname'}" aria-label="Piste ${escapeHtml(nr)}"><span>${short ? escapeHtml(nr.replace(/\s+/g, '')) : ICONS.skier}</span></div>
       <div class="step-info">
         <div class="step-kind kind-${diff}">${PISTE_KIND[diff] || 'Piste'}</div>
-        <div class="step-name">${edge.name}</div>
+        <div class="step-name">${escapeHtml(edge.name)}</div>
         ${facts ? `<div class="step-sub">${facts}</div>` : ''}
       </div>
     `;
@@ -2040,9 +2057,9 @@ function stepElement(edge, index, clock, next) {
       <div class="step-icon ico-${edge.type}">${STEP_ICONS[edge.type]}</div>
       <div class="step-info">
         <div class="step-kind kind-connection">${tagLabel(edge)}${edge.tijd ? ` · ~${edge.tijd} min` : ''}</div>
-        <div class="step-name">${from} → ${to}</div>
-        ${edge.type === 'bus' && edge.stopFrom && edge.stopTo ? `<div class="step-sub">${ui('bus')} ${edge.stopFrom} → ${edge.stopTo}</div>` : ''}
-        ${edge.info ? `<div class="step-sub">${edge.info}</div>` : ''}
+        <div class="step-name">${escapeHtml(from)} → ${escapeHtml(to)}</div>
+        ${edge.type === 'bus' && edge.stopFrom && edge.stopTo ? `<div class="step-sub">${ui('bus')} ${escapeHtml(edge.stopFrom)} → ${escapeHtml(edge.stopTo)}</div>` : ''}
+        ${edge.info ? `<div class="step-sub">${escapeHtml(edge.info)}</div>` : ''}
       </div>
     `;
   } else {
@@ -2056,7 +2073,7 @@ function stepElement(edge, index, clock, next) {
       <div class="step-info">
         <div class="step-kind kind-lift">${tagLabel(edge)}${edge.descent ? ' · ride down ↓' : ''}${edge.tijd ? ` · ~${edge.tijd} min` : ''}</div>
         ${liftStatusHtml(edge.liftNr) ? `<div class="step-actions">${liftStatusHtml(edge.liftNr)}</div>` : ''}
-        <div class="step-title"><span class="lift-code">${liftCode(edge.liftNr)}</span><span class="step-name">${edge.name}</span></div>
+        <div class="step-title"><span class="lift-code">${escapeHtml(liftCode(edge.liftNr))}</span><span class="step-name">${escapeHtml(edge.name)}</span></div>
         ${exitHintHtml(edge, next)}
       </div>
     `;
@@ -2087,13 +2104,19 @@ function addWaypoint(parent, name, alt, icon, subtitle, delay) {
 function closedWarning(steps = []) {
   const closed = closedLiftsOn(steps);
   return closed.length
-    ? `<div class="closed-warning">${ui('warn')} <span>${closedLabel()}: ${closed.map(e => `${e.liftNr} ${e.name}`).join(', ')}. ${avoidClosedButton(closed)}</span></div>`
+    ? `<div class="closed-warning">${ui('warn')} <span>${closedLabel()}: ${closed.map(e => escapeHtml(`${liftCode(e.liftNr)} ${e.name}`.trim())).join(', ')}. ${avoidClosedButton(closed)}</span></div>`
     : '';
+}
+
+// A source as people know it: without the dataset id and date some sources
+// carry ("OpenSkiData (OpenStreetMap) 1eeb56…, 2026-10-31").
+function sourceName(text) {
+  return String(text || 'the ski area').replace(/\s*\b[0-9a-f]{32,}\b/gi, '').replace(/,\s*\d{4}-\d{2}-\d{2}\s*$/, '').trim();
 }
 
 function getTip() {
   return `${ui('info')} <span><strong>Tip:</strong> ` + (LIFT_STATUS
-    ? `Lift status ${LIFT_STATUS.live ? 'live ' : ''}from ${LIFT_STATUS.bron}, ${liftStatusAge()}. Things can change during the day.`
+    ? `Lift status ${LIFT_STATUS.live ? 'live ' : ''}from ${escapeHtml(sourceName(LIFT_STATUS.bron))}, ${liftStatusAge()}. Things can change during the day.`
     : 'Check the current opening times of your ski area before you set off.') + '</span>';
 }
 

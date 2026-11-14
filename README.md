@@ -17,6 +17,10 @@ All work happens on GitHub; nothing needs to run on a local machine.
 
 A push to `main` goes live immediately, so work on a branch and merge when it is ready.
 
+Every pull request (and push to `main`) runs **Check** (`.github/workflows/check.yml`): every
+script parses, every JSON file is valid, and every file the service worker caches on install
+exists (`tools/check-shell.mjs`; one missing file would stop the app from updating).
+
 ## Published site (GitHub Pages)
 
 Only the planner files go online: `index.html`, `config.js`, `account.js`, `icons.js`, `liftmatch.js`, `map.js`, `dayplan.js`,
@@ -134,8 +138,8 @@ areas it overlaps. For a few parts they are set under `splits` in
 di Fassa", which can be found by searching Val Gardena, Gröden, Selva, Ortisei and so on. The build
 report lists every part and what became of it.
 
-The tab bar is always there, also on the area picker before an area is open; a tab tapped then
-shows "Choose a ski area first…" on the picker (`askForAreaFirst`). The app starts on the area picker, with the area used last on top (*Your last ski area*); that
+The tab bar is always there, also on the area picker before an area is open; Plan, Route or Map tapped then
+shows "Choose a ski area first…" on the picker (`askForAreaFirst`); Settings opens without an area. The app starts on the area picker, with the area used last on top (*Your last ski area*); that
 area opens as it was left. Opening another area clears what was chosen in it before (the route
 being followed, the day's start, end and stops; `clearAreaSelections` in `app.js`); saved routes,
 preferences and avoided lifts stay.

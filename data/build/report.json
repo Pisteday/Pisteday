@@ -4,9 +4,9 @@
   "country": "AT",
   "region": "Tyrol",
   "lifts": 50,
-  "runs": 147,
-  "pistesKm": 184,
-  "descents": 897,
+  "runs": 149,
+  "pistesKm": 185,
+  "descents": 901,
   "connectedShare": 90,
   "noWayDown": [],
   "noWayIn": [
@@ -15,9 +15,9 @@
   "outsideMainNetwork": [
    "D10",
    "E2",
+   "E1",
    "E3",
-   "H11",
-   "E1"
+   "H11"
   ],
   "domains": [
    46
@@ -27,14 +27,14 @@
   "why": {
    "D10": "runs attached, but no way into or out of the main network",
    "E2": "runs attached, but no way into or out of the main network",
+   "E1": "runs attached, but no way into or out of the main network",
    "E3": "runs attached, but no way into or out of the main network",
-   "H11": "runs attached, but no way into or out of the main network",
-   "E1": "runs attached, but no way into or out of the main network"
+   "H11": "runs attached, but no way into or out of the main network"
   },
   "osd": [
    "1eeb56a80185ff1dff644357f9f747842d0f620c"
   ],
   "inputLifts": 63,
-  "inputRuns": 238
+  "inputRuns": 241
  }
 }
