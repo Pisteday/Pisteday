@@ -816,6 +816,9 @@ function routePickerOptions() {
     options.push({ group: 'Recent', icon: kind === 'quick' ? 'flag' : 'day', label: t.title, sub: t.kind, on: kind === activeRoute,
       run: () => { setActiveRoute(kind); navTo(document.getElementById('route-screen').dataset.view || 'route'); } });
   });
+  // The day plan a saved route took the place of
+  const kept = typeof unsavedDay === 'function' ? unsavedDay() : null;
+  if (kept) options.push({ group: 'Recent', icon: 'day', label: kept.title, sub: keptDaySub(kept), run: openUnsavedDay });
   if (typeof savedDays !== 'undefined' && (!accountsOn || account)) {
     const shown = activeRoute === 'day' ? shownSavedDay() : null;
     savedDays.forEach(day => options.push({ group: 'Saved routes', icon: 'star', label: day.name, on: day.id === shown?.id,
@@ -824,6 +827,10 @@ function routePickerOptions() {
   }
   options.push({ group: '', icon: 'plus', label: 'Plan a new route', run: () => navTo('plan') });
   return options;
+}
+
+function keptDaySub(kept) {
+  return kept.area_id === currentArea?.id ? 'Day plan · not saved' : `Day plan · not saved · ${kept.area_name}`;
 }
 
 function openRoutePicker() {
@@ -872,20 +879,22 @@ function renderEmptySaved() {
   const el = document.getElementById('route-empty-saved');
   const recent = ['quick', 'day'].filter(plannerHasRoute);
   const days = savedRoutesHere();
-  const any = recent.length || days.length;
+  const kept = typeof unsavedDay === 'function' ? unsavedDay() : null; // the day plan a saved route took the place of
+  const any = recent.length || days.length || kept;
   document.getElementById('route-empty-title').textContent = any ? 'Your routes' : 'No route yet';
   document.getElementById('route-empty-intro').style.display = any ? 'none' : '';
   const item = (attrs, icon, title, sub) => `<button type="button" class="route-empty-day" ${attrs}>${ui(icon)}<span><strong>${escapeHtml(title)}</strong><small>${escapeHtml(sub)}</small></span></button>`;
-  el.innerHTML = (recent.length ? `<div class="prefs-label">${ui('clock')} Recent</div>` + recent.map(kind => {
+  el.innerHTML = (recent.length || kept ? `<div class="prefs-label">${ui('clock')} Recent</div>` + recent.map(kind => {
     const t = routeTitle(kind);
     return item(`data-recent="${kind}"`, kind === 'quick' ? 'flag' : 'day', t.title, t.kind);
-  }).join('') : '')
+  }).join('') + (kept ? item('data-kept', 'day', kept.title, keptDaySub(kept)) : '') : '')
     + (days.length ? `<div class="prefs-label">${ui('star')} Saved routes</div>` + days.map((day, i) =>
       `<div class="route-menu-row">${item(`data-day="${i}"`, 'star', day.name, [day.area_name, day.summary?.km != null ? `${day.summary.km} km` : ''].filter(Boolean).join(' · '))}<button type="button" class="route-menu-del" data-edit="${i}" aria-label="Change ${escapeHtml(day.name)}">${ui('edit')}</button></div>`).join('') : '');
   el.querySelectorAll('[data-recent]').forEach(btn => btn.addEventListener('click', () => {
     setActiveRoute(btn.dataset.recent);
     navTo(document.getElementById('route-screen').dataset.view || 'route');
   }));
+  el.querySelector('[data-kept]')?.addEventListener('click', openUnsavedDay);
   el.querySelectorAll('[data-day]').forEach(btn => btn.addEventListener('click', () => openSavedDay(days[+btn.dataset.day].id)));
   el.querySelectorAll('[data-edit]').forEach(btn => btn.addEventListener('click', () => showSavedDayMenu(days[+btn.dataset.edit].id)));
 }

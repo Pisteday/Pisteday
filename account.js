@@ -206,6 +206,7 @@ async function signedIn(user) {
 
 function signedOut() {
   account = null;
+  forgetUnsavedDay(); // the next account does not get this one's day plan
   savedDays = [];
   storeSavedDays();
   storeAccount();
@@ -512,13 +513,42 @@ function restoreSavedDays() {
 }
 
 // A saved day: its area, its settings, planned again and shown.
-async function openSavedDay(id, { edit = false } = {}) {
-  const day = savedDays.find(d => d.id === id);
+// The day plan that was on screen, not saved, when a saved route was opened:
+// kept so it stays under Recent (the planner holds one day at a time). Its
+// settings, option and ticks; planned again from them when picked.
+const UNSAVED_DAY_KEY = 'skirouter:unsaved-day';
+function unsavedDay() {
+  try { return JSON.parse(localStorage.getItem(UNSAVED_DAY_KEY)) || null; } catch { return null; }
+}
+
+function forgetUnsavedDay() {
+  try { localStorage.removeItem(UNSAVED_DAY_KEY); } catch {}
+}
+
+function keepUnsavedDay() {
+  if (!plannerHasRoute('day') || shownSavedDay() || !currentArea) return;
+  const kept = {
+    area_id: currentArea.id, area_name: currentArea.name,
+    inputs: loadDayInputs(), option: dayShown, title: routeTitle('day').title, progress: loadProgress('day'),
+  };
+  try { localStorage.setItem(UNSAVED_DAY_KEY, JSON.stringify(kept)); } catch {}
+}
+
+// Back to the day plan kept by keepUnsavedDay.
+async function openUnsavedDay() {
+  const kept = unsavedDay();
+  if (!kept) return;
+  forgetUnsavedDay(); // it is the day on screen again (and the one there now is kept, if not saved)
+  await openSavedDay(null, { day: kept });
+}
+
+async function openSavedDay(id, { edit = false, day = savedDays.find(d => d.id === id) } = {}) {
   if (!day) return;
   stopEditingDay();
   const view = currentScreen() === 'route' ? document.getElementById('route-screen').dataset.view : 'route';
   const meta = AREAS.find(a => a.id === areaIdNow(day.area_id));
   if (!meta) { showAccountNotice(`"${day.area_name}" is not in the ski area list any more.`); return; }
+  keepUnsavedDay(); // before its settings are replaced
   try { localStorage.setItem(DAY_KEY_PREFIX + meta.id, JSON.stringify(day.inputs)); } catch {}
   closeAccount();
   if (currentArea?.id !== meta.id) await selectArea(meta);
@@ -527,10 +557,11 @@ async function openSavedDay(id, { edit = false } = {}) {
   const inputs = day.inputs || {};
   if (inputs.end && !restorePlace('dend', inputs.endPlace)) restoreStation('dend', inputs.end);
   setPlanMode('day');
-  clearProgress('day');
+  // A saved route starts fresh; the kept day comes back with its ticks.
+  if (day.progress) saveProgress('day', day.progress); else clearProgress('day');
   planDay({ override: inputs, silent: true });
   if (day.option > 0 && day.option < dayOptions.length) renderDayOption(day.option);
-  openedDayId = day.id;
+  openedDayId = day.id || null;
   // To change it: in the Plan tab, with its settings, and Update this day
   if (edit) {
     editingDay = day.id;
