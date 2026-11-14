@@ -3606,8 +3606,18 @@ body.map-full .tabbar {
 
 /* The season pass is needed for a whole day */
 .mode-lock {
+  position: absolute; /* in the tab's corner, so "Whole day" stays on one line */
+  top: -7px;
+  right: 6px;
   display: inline-flex;
-  opacity: 0.7;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--bg-fff3d5);
+  color: var(--skiroute);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
 .mode-lock .ui-icon {
@@ -4156,4 +4166,100 @@ body.no-header main {
 
 .country-options button:active {
   background: var(--snow);
+}
+
+/* Sign up: Free or Premium, and what each gives */
+.gate-plans {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.gate-plans legend {
+  padding: 0;
+  margin-bottom: 4px;
+}
+
+.gate-plan {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px;
+  border: 1.5px solid var(--ice);
+  border-radius: 12px;
+  background: var(--snow);
+  cursor: pointer;
+}
+
+.gate-plan:has(input:checked) {
+  border-color: var(--accent);
+  background: var(--bg-ffffff);
+}
+
+.gate-plan input {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  margin: 2px 0 0;
+  accent-color: var(--accent);
+}
+
+.gate-plan-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--midnight);
+}
+
+.gate-plan-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.gate-plan-head strong {
+  font-size: 1rem;
+}
+
+.gate-plan-head small {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.gate-plan ul {
+  margin: 0 0 0 16px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 0.8rem;
+  color: var(--fg-4a5d72);
+}
+
+.gate-plan em {
+  font-size: 0.75rem;
+  font-style: normal;
+  color: var(--fg-6a7d92);
+}
+
+/* A Premium feature without Premium: why, before what it offers */
+.paywall-why {
+  margin: -4px 0 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--bg-fff3d5);
+  color: var(--midnight);
+  font-size: 0.88rem;
+}
+
+.paywall .prefs-label {
+  margin: 0 0 8px;
 }

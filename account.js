@@ -120,6 +120,10 @@ function renderGate(mode, message = '') {
     el.style.display = el.dataset.for.split(' ').includes(mode) ? '' : 'none';
     el.querySelectorAll('input, select').forEach(input => { input.disabled = el.style.display === 'none'; });
   });
+  // Free or Premium is only a choice while payments are on
+  const plans = document.getElementById('gate-plans');
+  if (!paymentsOn) plans.style.display = 'none';
+  document.getElementById('gate-plan-price').textContent = `€${accountCfg.seasonPrice || '9.99'} per season`;
   const titles = { signin: 'Sign in', signup: 'Create your account', reset: 'Forgot your password', newpassword: 'Choose a new password', sent: 'Check your email' };
   document.getElementById('gate-title').textContent = titles[mode] || 'Sign in';
   const submit = document.getElementById('gate-submit');
@@ -168,6 +172,9 @@ async function gateSubmit(event) {
       if (ageOn(birthdate) > 120) return fail('Check your date of birth.');
       if (!country) return fail('Choose your country from the list.');
       if (!document.getElementById('gate-terms').checked) return fail('Agree to the terms and the privacy policy to create an account.');
+      // Premium chosen: the account comes first, paying right after it
+      const premium = paymentsOn && document.querySelector('input[name="gate-plan"]:checked')?.value === 'premium';
+      try { if (premium) localStorage.setItem(WANTS_PREMIUM_KEY, '1'); else localStorage.removeItem(WANTS_PREMIUM_KEY); } catch {}
       const { data, error } = await sb.auth.signUp({ email, password, options: { data: { birthdate, country }, emailRedirectTo: back } });
       if (error) return fail(/registered|exists/i.test(error.message) ? 'There is already an account with this email address. Sign in instead.' : `Could not create the account: ${error.message}`);
       if (data.session) await signedIn(data.user);
@@ -189,6 +196,18 @@ async function gateSubmit(event) {
   button.disabled = false;
 }
 
+// Premium was chosen when creating the account: straight to where it is
+// bought (Account settings), once, after the first sign-in.
+const WANTS_PREMIUM_KEY = 'skirouter:wants-premium';
+function offerPremiumAfterSignUp() {
+  let wants = false;
+  try { wants = localStorage.getItem(WANTS_PREMIUM_KEY) === '1'; localStorage.removeItem(WANTS_PREMIUM_KEY); } catch {}
+  if (!wants || !paymentsOn || hasSeasonPass()) return;
+  openAccount();
+  showAccountNotice('Your account is ready. Tick the box and tap Get Premium to pay, or just start with the free account.', 'ok');
+  document.getElementById('acc-buy').scrollIntoView({ block: 'center' });
+}
+
 async function signedIn(user) {
   account = { id: user.id, email: user.email };
   const ok = await refreshProfile({ fresh: true });
@@ -203,6 +222,7 @@ async function signedIn(user) {
   // Signed in: on Plan with the quick route, unless the pass is there and
   // the day planner was open last time (an area already open on this phone).
   if (currentArea && !hasSeasonPass()) { setPlanMode('quick'); navTo('plan'); }
+  offerPremiumAfterSignUp();
   await moveLocalDays();
   loadSavedDays();
 }
@@ -331,12 +351,12 @@ async function waitForPass() {
   showAccountNotice('Checking your payment…');
   for (let i = 0; i < PAID_POLL_TRIES; i++) {
     if (await refreshProfile() && hasSeasonPass()) {
-      showAccountNotice(`Season pass ${seasonLabel()} active. Enjoy your days!`, 'ok');
+      showAccountNotice(`Premium ${seasonLabel()} is active. Enjoy your days!`, 'ok');
       return;
     }
     await new Promise(r => setTimeout(r, PAID_POLL_MS));
   }
-  showAccountNotice('Your payment has not come through yet. If you paid, the season pass appears within a few minutes — open the app again then.');
+  showAccountNotice('Your payment has not come through yet. If you paid, Premium appears within a few minutes — open the app again then.');
 }
 
 function showAccountNotice(text, kind = '') {
@@ -357,7 +377,7 @@ function renderAccountAccess() {
     document.getElementById('day-result').style.display = paid ? '' : 'none';
     document.getElementById('mode-day-lock').hidden = paid;
     if (!paid) document.getElementById('day-choice').style.display = 'none';
-    document.getElementById('paywall-price').textContent = `€${accountCfg.seasonPrice || '9.99'} for the ${seasonLabel()} season`;
+    document.getElementById('paywall-price').textContent = `Premium · €${accountCfg.seasonPrice || '9.99'} for the ${seasonLabel()} season`;
   }
   const save = document.getElementById('save-day');
   if (save) save.style.display = paid ? '' : 'none'; // without accounts: on this phone
@@ -739,13 +759,13 @@ function renderAccount() {
   document.getElementById('acc-pass').innerHTML = !paymentsOn
     ? `<strong>${ui('done')} Test phase</strong><span>Everything is free while SkiRouter is being tested: the day planner and saving your days included. Nothing to pay.</span>`
     : paid
-    ? `<strong>${ui('done')} Season pass</strong><span>Day planner and saved routes until ${escapeHtml(formatDay(new Date(new Date(account.paid_until) - 1)))}</span>`
-    : `<strong>Free account</strong><span>Quick routes. The season pass adds the day planner and saving your days: €${escapeHtml(accountCfg.seasonPrice || '9.99')} for the ${seasonLabel()} season.</span>`;
+    ? `<strong>${ui('done')} Premium account</strong><span>Day planner and saved routes until ${escapeHtml(formatDay(new Date(new Date(account.paid_until) - 1)))}</span>`
+    : `<strong>Free account</strong><span>Routes to a destination. Premium adds the day planner and saving your routes: €${escapeHtml(accountCfg.seasonPrice || '9.99')} for the ${seasonLabel()} season, one payment, no subscription.</span>`;
   document.getElementById('acc-buy').style.display = paid ? 'none' : '';
 }
 
 async function deleteAccountClicked() {
-  if (!confirm('Delete your account, your preferences and your saved routes? This cannot be undone. A season pass you paid for is not refunded.')) return;
+  if (!confirm('Delete your account, your preferences and your saved routes? This cannot be undone. A Premium season you paid for is not refunded.')) return;
   if (!navigator.onLine) { showAccountNotice('You are offline. Deleting your account needs a connection.'); return; }
   const { error } = await sb.functions.invoke('delete-account', { body: {} });
   if (error) { showAccountNotice('Your account could not be deleted. Try again, or email us.'); return; }

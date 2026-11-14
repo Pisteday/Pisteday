@@ -1094,7 +1094,7 @@ function planDayNow(options = {}) {
   dayBus  = typeof o.bus  === 'boolean' ? o.bus  : busAllowed('pref-bus');
   dayDrag = typeof o.drag === 'boolean' ? o.drag : dragAllowed('pref-drag');
 
-  if (!hasSeasonPass()) return fail('The day planner comes with the season pass.');
+  if (!hasSeasonPass()) return fail('The day planner needs a Premium account.');
 
   if (!start) { markMissing(['dstart']); return fail('Choose where your day starts.'); }
   if (t0 == null || t1 == null)     return fail('Enter a start time and a time to be back.');

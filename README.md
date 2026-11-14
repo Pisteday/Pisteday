@@ -472,8 +472,12 @@ with the account, so they follow you to another phone. A free account plans quic
 the **season pass** (one payment per winter, valid until 30 June; bought from May on it is
 for the coming season) adds the **day planner** and **saving days** in the account. **Settings →
 Account settings** shows the account: email, date of birth, country, season pass, sign out and
-delete account. Saved routes are not listed there: they are in the Route tab (Your routes). Without the pass the
-Day plan tab shows what the pass offers and a button to buy it.
+delete account. Saved routes are not listed there: they are in the Route tab (Your routes). In the app the paid
+account is called **Premium** (bought as a season pass). While payments are on, creating an
+account asks **Free or Premium** and lists what each gives; with Premium chosen the app goes to
+Account settings right after the account is made, where it is paid (`offerPremiumAfterSignUp`).
+Without Premium the **Whole day** tab carries a Premium mark and shows **Premium account needed**:
+why, what Premium gives, the price and the button to get it.
 
 How it fits together:
 
