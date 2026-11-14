@@ -56,8 +56,8 @@ const RIDE_DOWN_PENALTY = 60;
 // other way (and the route says so).
 const UNWANTED_PENALTY = 120;
 
-// A lift's station names. Where the map data draws a lift top to bottom, an
-// older build kept the names on the wrong side ("Maierlbahn Talstation" as
+// A lift's station names. The map data lists a lift's stations in no fixed
+// order, so a name can end up on the wrong side ("Maierlbahn Talstation" as
 // the top): a top called valley station, or a bottom called mountain
 // station, goes to the other side.
 const VALLEY_NAME = /talstation|valley station|station aval|stazione a valle/i;
