@@ -742,24 +742,6 @@ function renderAccount() {
     ? `<strong>${ui('done')} Season pass</strong><span>Day planner and saved routes until ${escapeHtml(formatDay(new Date(new Date(account.paid_until) - 1)))}</span>`
     : `<strong>Free account</strong><span>Quick routes. The season pass adds the day planner and saving your days: €${escapeHtml(accountCfg.seasonPrice || '9.99')} for the ${seasonLabel()} season.</span>`;
   document.getElementById('acc-buy').style.display = paid ? 'none' : '';
-
-  const list = document.getElementById('acc-days');
-  document.getElementById('acc-days-section').style.display = paid || savedDays.length ? '' : 'none';
-  list.innerHTML = savedDays.length ? '' : '<div class="acc-empty">No saved routes yet. Plan a day and tap Save this route.</div>';
-  savedDays.forEach(day => {
-    const s = day.summary || {};
-    const row = document.createElement('div');
-    row.className = 'acc-day';
-    row.innerHTML = `
-      <button type="button" class="acc-day-open">
-        <strong>${escapeHtml(day.name)}</strong>
-        <span>${escapeHtml(day.area_name)}${s.km != null ? ` · ${s.km} km · ${s.pistes} pistes · ${escapeHtml(s.start || '')}–${escapeHtml(s.end || '')}` : ''}</span>
-      </button>
-      <button type="button" class="acc-day-del acc-day-edit" aria-label="Change ${escapeHtml(day.name)}">${ui('edit')}</button>`;
-    row.querySelector('.acc-day-open').addEventListener('click', () => openSavedDay(day.id));
-    row.querySelector('.acc-day-del').addEventListener('click', () => showSavedDayMenu(day.id));
-    list.appendChild(row);
-  });
 }
 
 async function deleteAccountClicked() {

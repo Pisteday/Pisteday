@@ -470,9 +470,9 @@ Everyone signs in: email address, password, date of birth (16 and over, GDPR art
 country. The preferences (`skirouter:prefs`, favourite areas, avoided lifts and pistes) go
 with the account, so they follow you to another phone. A free account plans quick routes;
 the **season pass** (one payment per winter, valid until 30 June; bought from May on it is
-for the coming season) adds the **day planner** and **saving days** in the account. 👤 in the
-header opens the account: season pass, saved routes (tap one to plan it again in its area, with
-the settings it was saved with), country, sign out and delete account. Without the pass the
+for the coming season) adds the **day planner** and **saving days** in the account. **Settings →
+Account settings** shows the account: email, date of birth, country, season pass, sign out and
+delete account. Saved routes are not listed there: they are in the Route tab (Your routes). Without the pass the
 Day plan tab shows what the pass offers and a button to buy it.
 
 How it fits together:
@@ -491,7 +491,7 @@ How it fits together:
   button only works once it is ticked. The checkout function refuses a payment without it
   (`waiveWithdrawal`) and keeps the moment in `payments.withdrawal_waived_at` and in the Mollie
   payment's metadata, as proof (migration `20261114000000_withdrawal_consent.sql`).
-- **Changing a saved route**: the ✎ beside a saved route (Your routes, account screen; not in the route menu, which only switches routes) opens its own
+- **Changing a saved route**: the ✎ beside a saved route (in Your routes; not in the route menu, which only switches routes) opens its own
   menu: **Rename**, **Change the route** and **Delete this route**. Change the route plans the day
   again in the Plan tab with its saved settings and shows "Changing <name>": plan it again as you
   like, then **Update this route** (stores the new settings, option and summary in the same saved
