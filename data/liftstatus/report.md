@@ -1,11 +1,11 @@
 # Live lift status: sources
 
-Run 2026-11-09T13:23 UTC, 7 min. 2178 candidate sources, 127 with lifts.
+Run 2026-11-16T13:12 UTC, 7 min. 2174 candidate sources, 130 with lifts.
 
-**96 areas with live lift status** (at least 75 % of their named lifts matched).
+**100 areas with live lift status** (at least 75 % of their named lifts matched).
 
-- Per country: AT 55, CH 15, FR 13, IT 7, DE 5, LI 1
-- Per provider: intermaps 76, lumiplan 12, infosnow 6, micado 3
+- Per country: AT 54, FR 16, CH 14, IT 8, DE 7, LI 1
+- Per provider: intermaps 77, lumiplan 15, infosnow 6, micado 3
 
 | Area | Country | Source | Match | Live |
 |---|---|---|---:|---|
@@ -39,27 +39,31 @@ Run 2026-11-09T13:23 UTC, 7 min. 2178 candidate sources, 127 with lifts.
 | Venet | AT | intermaps winter.intermaps.com/venet | 100 % | yes |
 | Weinebene | AT | intermaps winter.intermaps.com/weinebene | 100 % | yes |
 | Zillertal Arena | AT | intermaps zillertal.intermaps.com/zillertal_uebersicht | 100 % | yes |
-| Confin / San Bernardino | CH | intermaps winter.intermaps.com/san_bernardino | 100 % | yes |
 | Glacier 3000 | CH | intermaps winter.intermaps.com/gstaad | 100 % | yes |
 | Hoch-Ybrig | CH | intermaps winter.intermaps.com/hoch_ybrig | 100 % | yes |
 | Lauchernalp | CH | intermaps winter.intermaps.com/lauchernalp | 100 % | yes |
 | Leukerbad (Torrent) | CH | infosnow pid 48 | 100 % | yes |
 | Saas Grund | CH | intermaps winter.intermaps.com/saastal | 100 % | yes |
 | Wildhaus | CH | infosnow pid 154 | 100 % | yes |
+| Feldberg | DE | intermaps winter.intermaps.com/feldberg | 100 % | yes |
 | Ofterschwang/​Gunzesried | DE | intermaps winter.intermaps.com/ofterschwang | 100 % | yes |
 | Skigebiet Garmisch-Classic | DE | intermaps winter.intermaps.com/zugspitzbahn_garmisch | 100 % | yes |
+| Skigebiet Spitzingsee - Tegernsee | DE | intermaps winter.intermaps.com/spitzingsee | 100 % | yes |
 | Skiliftkarussell Winterberg | DE | intermaps winter.intermaps.com/winterberg | 100 % | yes |
 | Albiez-Montrond | FR | lumiplan albiez-montrond | 100 % | yes |
 | Font d'Urle Chaud Clapier | FR | lumiplan font-d-urle | 100 % | yes |
 | La Norma | FR | lumiplan la-norma | 100 % | yes |
+| Lélex | FR | lumiplan monts-jura | 100 % | yes |
+| Luz-Ardiden | FR | lumiplan luz-ardiden | 100 % | yes |
+| Metabief - Mont d'or | FR | lumiplan metabief | 100 % | yes |
 | Montagnes de Lans | FR | lumiplan lans-en-vercors | 100 % | yes |
-| Monts Jura | FR | lumiplan monts-jura | 100 % | yes |
 | Puy-Saint-Vincent | FR | lumiplan puy-saint-vincent | 100 % | yes |
 | Forni di Sopra | IT | intermaps winter.intermaps.com/forni_di_sopra | 100 % | yes |
 | Nassfeld, Mokrine | IT | intermaps winter.intermaps.com/nassfeld | 100 % | yes |
 | Passo Stelvio - Stilfserjoch | IT | intermaps winter.intermaps.com/passo_stelvio | 100 % | yes |
 | Piancavallo | IT | intermaps winter.intermaps.com/piancavallo | 100 % | yes |
 | Ratschings-Jaufen | IT | intermaps winter.intermaps.com/ratschings_jaufen | 100 % | yes |
+| Tarvisio, Tarvis | IT | intermaps winter.intermaps.com/tarvisio | 100 % | yes |
 | KitzSki | AT | micado www.kitzski.at kitzski | 96 % | yes |
 | Obertauern | AT | intermaps winter.intermaps.com/obertauern | 96 % | yes |
 | SkiWelt Wilder Kaiser - Brixental | AT | micado www.skiwelt.at skiwelt | 96 % | yes |
@@ -76,7 +80,7 @@ Run 2026-11-09T13:23 UTC, 7 min. 2178 candidate sources, 127 with lifts.
 | Stubaier Gletscher | AT | intermaps winter.intermaps.com/stubaier_gletscher | 94 % | yes |
 | Tauplitz / Bad Mitterndorf | AT | intermaps winter.intermaps.com/tauplitz | 94 % | yes |
 | Flumserberg | CH | infosnow pid 37 | 94 % | yes |
-| Skipisten Titlis Bergbahnen | CH | intermaps winter.intermaps.com/engelberg | 93 % | yes |
+| Engelberg Titlis | CH | intermaps winter.intermaps.com/engelberg | 93 % | yes |
 | Les Gets-Morzine | FR | intermaps winter.intermaps.com/portes_du_soleil | 93 % | yes |
 | Berwang | AT | intermaps winter.intermaps.com/berwang | 92 % | yes |
 | Kals-Matrei | AT | intermaps winter.intermaps.com/kals_matrei | 92 % | yes |
@@ -88,22 +92,22 @@ Run 2026-11-09T13:23 UTC, 7 min. 2178 candidate sources, 127 with lifts.
 | Les Arcs | FR | lumiplan les-arcs | 89 % | yes |
 | Gargellen | AT | intermaps winter.intermaps.com/gargellen | 88 % | yes |
 | Weißsee Gletscherwelt | AT | intermaps winter.intermaps.com/weisssee_gletscherwelt | 88 % | yes |
+| Le Lioran | FR | lumiplan le-lioran | 88 % | yes |
 | Station du Col de Rousset | FR | lumiplan col-de-rousset | 88 % | yes |
 | Dreiländereck - Arnoldstein | AT | intermaps winter.intermaps.com/dreilaendereck | 86 % | yes |
 | Großglockner Heiligenblut | AT | intermaps winter.intermaps.com/heiligenblut | 86 % | yes |
 | Hochrindl | AT | intermaps winter.intermaps.com/hochrindl | 86 % | yes |
-| Loser-Altaussee | AT | intermaps winter.intermaps.com/loser | 86 % | yes |
 | Drei Zinnen - Tre Cime, Drei Zinnen, Tre Cime | IT | intermaps winter.intermaps.com/drei_zinnen | 86 % | yes |
 | Obergurgl-Hochgurgl | AT | intermaps winter.intermaps.com/obergurgl_hochgurgl | 85 % | yes |
 | Grebenzen | AT | intermaps winter.intermaps.com/grebenzen | 83 % | yes |
 | Klippitztörl | AT | intermaps winter.intermaps.com/klippitztoerl | 83 % | yes |
+| Annaberg | AT | intermaps winter.intermaps.com/annaberg | 80 % | yes |
 | Bergeralm | AT | intermaps winter.intermaps.com/bergeralm | 80 % | yes |
 | Glungezer | AT | intermaps winter.intermaps.com/glungezer | 80 % | yes |
 | Malbun | LI | intermaps winter.intermaps.com/malbun | 80 % | yes |
-| Steinplatte Waidring-Tirol | AT | micado www.steinplatte.tirol steinplatte | 79 % | yes |
+| Skigebiet Steinplatte Winklmoosalm | AT | micado www.steinplatte.tirol steinplatte | 79 % | yes |
 | Hochkössen - Unterberghorn | AT | intermaps winter.intermaps.com/koessen | 78 % | yes |
 | Bonneval-sur-Arc | FR | lumiplan bonneval-sur-arc | 78 % | yes |
-| Innerkrems | AT | intermaps winter.intermaps.com/innerkrems | 75 % | yes |
 | Gletscher-Skigebiet Zugspitze, Ski resort Zugspitze | DE | intermaps winter.intermaps.com/zugspitzplatt | 75 % | yes |
 | Axamer Lizum - Muttereralm | AT | intermaps winter.intermaps.com/axamer_lizum | 73 % | no |
 | Kreischberg | AT | intermaps winter.intermaps.com/kreischberg | 73 % | no |
@@ -111,10 +115,9 @@ Run 2026-11-09T13:23 UTC, 7 min. 2178 candidate sources, 127 with lifts.
 | Skigebiet Diedamskopf | AT | intermaps winter.intermaps.com/diedamskopf | 71 % | no |
 | Brauneck | DE | intermaps winter.intermaps.com/brauneck | 71 % | no |
 | Skigebiet Oberwiesenthal | DE | intermaps winter.intermaps.com/fichtelberg | 71 % | no |
-| Annaberg | AT | intermaps winter.intermaps.com/annaberg | 67 % | no |
 | Raurisertal | AT | intermaps winter.intermaps.com/rauris | 60 % | no |
 | Sulden | IT | intermaps winter.intermaps.com/sulden | 60 % | no |
+| Loser-Altaussee | AT | intermaps winter.intermaps.com/loser | 43 % | no |
 | Goldeck | AT | intermaps winter.intermaps.com/goldeck | 40 % | no |
 | Forêt Blanche : Vars/Risoul | FR | lumiplan risoul | 39 % | no |
 | Balme - Vallorcine | FR | lumiplan chamonix | 33 % | no |
-| Tarvisio, Tarvis | IT | intermaps winter.intermaps.com/tarvisio | 20 % | no |

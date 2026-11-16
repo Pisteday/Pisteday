@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-09",
+ "updated": "2026-11-16",
  "minShare": 75,
  "areas": {
   "4-vallees-verbier-la-tzoumaz-nendaz-veys-ch": {
@@ -23,6 +23,18 @@
     {
      "provider": "lumiplan",
      "station": "albiez-montrond"
+    }
+   ]
+  },
+  "annaberg-at": {
+   "name": "Annaberg",
+   "country": "AT",
+   "share": 80,
+   "bron": "intermaps.com",
+   "sources": [
+    {
+     "provider": "intermaps",
+     "project": "https://winter.intermaps.com/annaberg"
     }
    ]
   },
@@ -110,18 +122,6 @@
     }
    ]
   },
-  "confin-san-bernardino-ch": {
-   "name": "Confin / San Bernardino",
-   "country": "CH",
-   "share": 100,
-   "bron": "intermaps.com",
-   "sources": [
-    {
-     "provider": "intermaps",
-     "project": "https://winter.intermaps.com/san_bernardino"
-    }
-   ]
-  },
   "drei-zinnen-tre-cime-drei-zinnen-tre-cim-it": {
    "name": "Drei Zinnen - Tre Cime, Drei Zinnen, Tre Cime",
    "country": "IT",
@@ -143,6 +143,30 @@
     {
      "provider": "intermaps",
      "project": "https://winter.intermaps.com/dreilaendereck"
+    }
+   ]
+  },
+  "engelberg-titlis-ch": {
+   "name": "Engelberg Titlis",
+   "country": "CH",
+   "share": 93,
+   "bron": "intermaps.com",
+   "sources": [
+    {
+     "provider": "intermaps",
+     "project": "https://winter.intermaps.com/engelberg"
+    }
+   ]
+  },
+  "feldberg-de": {
+   "name": "Feldberg",
+   "country": "DE",
+   "share": 100,
+   "bron": "intermaps.com",
+   "sources": [
+    {
+     "provider": "intermaps",
+     "project": "https://winter.intermaps.com/feldberg"
     }
    ]
   },
@@ -374,18 +398,6 @@
     }
    ]
   },
-  "innerkrems-at": {
-   "name": "Innerkrems",
-   "country": "AT",
-   "share": 75,
-   "bron": "intermaps.com",
-   "sources": [
-    {
-     "provider": "intermaps",
-     "project": "https://winter.intermaps.com/innerkrems"
-    }
-   ]
-  },
   "kals-matrei-at": {
    "name": "Kals-Matrei",
    "country": "AT",
@@ -520,6 +532,18 @@
     }
    ]
   },
+  "le-lioran-fr": {
+   "name": "Le Lioran",
+   "country": "FR",
+   "share": 88,
+   "bron": "lumiplan.pro",
+   "sources": [
+    {
+     "provider": "lumiplan",
+     "station": "le-lioran"
+    }
+   ]
+  },
   "lech-zurs-at": {
    "name": "Lech/Zürs",
    "country": "AT",
@@ -529,6 +553,18 @@
     {
      "provider": "intermaps",
      "project": "https://skiarlberg.intermaps.com/skiarlberg"
+    }
+   ]
+  },
+  "lelex-fr": {
+   "name": "Lélex",
+   "country": "FR",
+   "share": 100,
+   "bron": "lumiplan.pro",
+   "sources": [
+    {
+     "provider": "lumiplan",
+     "station": "monts-jura"
     }
    ]
   },
@@ -592,15 +628,15 @@
     }
    ]
   },
-  "loser-altaussee-at": {
-   "name": "Loser-Altaussee",
-   "country": "AT",
-   "share": 86,
-   "bron": "intermaps.com",
+  "luz-ardiden-fr": {
+   "name": "Luz-Ardiden",
+   "country": "FR",
+   "share": 100,
+   "bron": "lumiplan.pro",
    "sources": [
     {
-     "provider": "intermaps",
-     "project": "https://winter.intermaps.com/loser"
+     "provider": "lumiplan",
+     "station": "luz-ardiden"
     }
    ]
   },
@@ -628,6 +664,18 @@
     }
    ]
   },
+  "metabief-mont-d-or-fr": {
+   "name": "Metabief - Mont d'or",
+   "country": "FR",
+   "share": 100,
+   "bron": "lumiplan.pro",
+   "sources": [
+    {
+     "provider": "lumiplan",
+     "station": "metabief"
+    }
+   ]
+  },
   "molltaler-gletscher-at": {
    "name": "Mölltaler Gletscher",
    "country": "AT",
@@ -649,18 +697,6 @@
     {
      "provider": "lumiplan",
      "station": "lans-en-vercors"
-    }
-   ]
-  },
-  "monts-jura-fr": {
-   "name": "Monts Jura",
-   "country": "FR",
-   "share": 100,
-   "bron": "lumiplan.pro",
-   "sources": [
-    {
-     "provider": "lumiplan",
-     "station": "monts-jura"
     }
    ]
   },
@@ -968,6 +1004,32 @@
     }
    ]
   },
+  "skigebiet-spitzingsee-tegernsee-de": {
+   "name": "Skigebiet Spitzingsee - Tegernsee",
+   "country": "DE",
+   "share": 100,
+   "bron": "intermaps.com",
+   "sources": [
+    {
+     "provider": "intermaps",
+     "project": "https://winter.intermaps.com/spitzingsee"
+    }
+   ]
+  },
+  "skigebiet-steinplatte-winklmoosalm-at": {
+   "name": "Skigebiet Steinplatte Winklmoosalm",
+   "country": "AT",
+   "share": 79,
+   "bron": "steinplatte.tirol",
+   "sources": [
+    {
+     "provider": "micado",
+     "base": "https://www.steinplatte.tirol",
+     "client": "https://sgm.steinplatte.tirol",
+     "region": "steinplatte"
+    }
+   ]
+  },
   "skiliftkarussell-winterberg-de-2": {
    "name": "Skiliftkarussell Winterberg",
    "country": "DE",
@@ -977,18 +1039,6 @@
     {
      "provider": "intermaps",
      "project": "https://winter.intermaps.com/winterberg"
-    }
-   ]
-  },
-  "skipisten-titlis-bergbahnen-ch": {
-   "name": "Skipisten Titlis Bergbahnen",
-   "country": "CH",
-   "share": 93,
-   "bron": "intermaps.com",
-   "sources": [
-    {
-     "provider": "intermaps",
-     "project": "https://winter.intermaps.com/engelberg"
     }
    ]
   },
@@ -1042,20 +1092,6 @@
     }
    ]
   },
-  "steinplatte-waidring-tirol-at": {
-   "name": "Steinplatte Waidring-Tirol",
-   "country": "AT",
-   "share": 79,
-   "bron": "steinplatte.tirol",
-   "sources": [
-    {
-     "provider": "micado",
-     "base": "https://www.steinplatte.tirol",
-     "client": "https://sgm.steinplatte.tirol",
-     "region": "steinplatte"
-    }
-   ]
-  },
   "stubaier-gletscher-at": {
    "name": "Stubaier Gletscher",
    "country": "AT",
@@ -1077,6 +1113,18 @@
     {
      "provider": "intermaps",
      "project": "https://winter.intermaps.com/sudelfeld"
+    }
+   ]
+  },
+  "tarvisio-tarvis-it": {
+   "name": "Tarvisio, Tarvis",
+   "country": "IT",
+   "share": 100,
+   "bron": "intermaps.com",
+   "sources": [
+    {
+     "provider": "intermaps",
+     "project": "https://winter.intermaps.com/tarvisio"
     }
    ]
   },
