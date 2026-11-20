@@ -9,7 +9,7 @@ window.SKIROUTER_CONFIG = {
   // false = test phase: sign in is needed, but there is no payment and every
   // signed-in account has what the season pass gives (day planner, saved
   // days). true goes together with app_settings.payments_on in the database
-  // (README: Accounts → Test phase). Now on with Mollie's test key: the
-  // checkout is Mollie's test screen and no money moves.
-  payments: true,
+  // (README: Accounts → Test phase). Back to false for testers:
+  // every account has Premium, nothing to buy.
+  payments: false,
 };
