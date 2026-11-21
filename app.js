@@ -2978,13 +2978,27 @@ const INTRO_STEPS = [
       document.getElementById('err').classList.remove('visible');
     } },
   { target: ['.plan-mode'], title: 'Two ways to plan', text: 'To a destination: from where you are to one lift or place. Whole day: a full ski day, planned for you. First, a destination.' },
-  { target: ['#sheet'], title: 'Where are you?', text: 'Tapping the starting point opens this list: pick a lift or place, search for one, or pick it on the map. Restaurants and villages are here too.',
-    enter: () => { if (tourDemo) openSheet('from'); } },
+  { target: ['#sheet'], title: 'Where are you?', text: 'Tapping the starting point opens this list: pick a lift or place, or search for one. Restaurants and villages are here too.',
+    enter: () => {
+      if (!tourDemo) return;
+      openSheet('from');
+      if (sheetView !== 'list') { sheetView = 'list'; showSheetView(); }
+    } },
+  { target: ['#sheet'], title: 'Or on the map', text: 'Map shows every lift on the piste map. Tap a lift: its card shows, and Start here picks it.',
+    enter: () => {
+      if (document.getElementById('sheet').style.display === 'none') return;
+      sheetView = 'map';
+      showSheetView();
+    },
+    demo: () => tourMapLift(tourDemo?.from)?.click() }, // open the example lift's card on the map
   { target: ['#to-chosen'], title: 'Where do you want to go?', text: () => `The destination is chosen the same way. As an example: from ${tourLiftName('from')} to ${tourLiftName('to')}. Bottom or Top says which station of the lift.`,
     enter: () => {
-      closeSheet();
+      // Start here on the map's card, as you would
+      const pick = document.querySelector('#sheet-map .leaflet-popup [data-pick]');
+      if (pick && tourDemo) pick.click();
+      if (document.getElementById('sheet').style.display !== 'none') closeSheet();
       if (!tourDemo) return;
-      restoreStation('from', tourDemo.from);
+      if (selected.from?.id !== tourDemo.from) restoreStation('from', tourDemo.from);
       restoreStation('to', tourDemo.to);
     } },
   { target: ['#plan-quick .prefs-row'], title: 'Your preferences', text: 'The difficulty you want, your pace, and lifts or pistes to avoid. They apply to every route.' },
@@ -3061,6 +3075,7 @@ function tourBegin() {
     quick: currentArea ? plannerHasRoute('quick') : false,
     active: activeRoute, routeClosed,
     openedQuickId: typeof openedQuickId === 'undefined' ? null : openedQuickId,
+    sheetView,
     storage,
   };
   tourDemo = currentArea ? tourPickRoute() : null;
@@ -3096,6 +3111,15 @@ function tourPickRoute() {
   return best && { from: best.from, to: best.to };
 }
 
+// A lift's code on the station list's map, to tap (its card opens).
+function tourMapLift(stationId) {
+  const lift = LIFTS.find(l => l.dal === stationId || l.berg === stationId);
+  if (!lift) return null;
+  const code = liftCode(lift.nr) || shortName(lift.name, 12);
+  const tag = [...document.querySelectorAll('#sheet-map .map-lift')].find(el => el.textContent === code);
+  return tag?.closest('.leaflet-marker-icon') || tag;
+}
+
 function tourLiftName(side) {
   const s = selected[side];
   return s ? `${liftCode(s.liftNr)} ${s.liftName}`.trim() : 'one lift';
@@ -3110,6 +3134,8 @@ function tourRestore() {
   if (!st) return;
   document.getElementById('route-save-menu')?.classList.remove('open');
   if (document.getElementById('sheet').style.display !== 'none') closeSheet();
+  sheetView = st.sheetView || 'list';
+  if (sheetView === 'list') showSheetView(); // the list, as you left it
   if (!st.area) {
     if (currentArea) {
       clearAreaSelections();
