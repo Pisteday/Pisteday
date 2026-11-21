@@ -1003,6 +1003,7 @@ function tabbarHeight() {
 }
 
 function resetPlanner() {
+  if (typeof stopEditingQuick === 'function') stopEditingQuick(); // another area: not changing a saved route here
   resetSide('from');
   resetSide('to');
   document.getElementById('result').classList.remove('visible');
@@ -1112,8 +1113,6 @@ function closeSheet() {
   document.getElementById('sheet-list').style.paddingBottom = '';
   unlockPageScroll();
   activeSide = null;
-  // Picking a new start or destination for a saved route: change it now
-  if (typeof quickEditSheetClosed === 'function') setTimeout(quickEditSheetClosed, 0);
 }
 
 // While the picker is open the page behind it stays put, so a swipe scrolls
@@ -2850,6 +2849,8 @@ function clearProgress(kind) {
 // The plan button: a fresh route, so nothing ticked yet, even when it is the
 // same route as last time.
 function planRouteClicked() {
+  // Changing a saved route (Change plan): Update this route
+  if (typeof editingQuick !== 'undefined' && editingQuick) { updateEditedQuick(); return; }
   clearProgress('quick');
   if (typeof openedQuickId !== 'undefined') openedQuickId = null; // a route of its own now
   planRoute();

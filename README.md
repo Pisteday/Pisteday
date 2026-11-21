@@ -253,7 +253,7 @@ not saved", `keepUnsavedDay`): the planner holds one day at a time, so it is pla
 its settings when picked, with its option and ticks; planning a new day takes its place. A route to
 a destination can be saved too (★ in Route and Map): it keeps its start and destination (in
 `inputs`, with `kind: 'quick'`, so no new database column) and is planned again with today's lift
-status when opened (`openSavedQuick`); its ⋯ menu offers Rename, Change the start or destination, Turn it round, Save as a copy and Delete. A day
+status when opened (`openSavedQuick`); its ⋯ menu offers Rename, Change plan, Save as a copy and Delete. A day
 plan that is not saved yet has **★** beside its name in Route and Map: it asks for a name and
 saves it there (`saveRouteFromTab`), the same as **Save this route** in the Plan tab. The active
 route is kept per area (`skirouter:active:<area>`); saved routes are kept on the phone too
@@ -539,14 +539,13 @@ How it fits together:
   (`waiveWithdrawal`) and keeps the moment in `payments.withdrawal_waived_at` and in the Mollie
   payment's metadata, as proof (migration `20261114000000_withdrawal_consent.sql`).
 - **Changing a saved route**: the ⋯ beside a saved route in My routes, or its filled ★ while it is open, opens its own
-  menu: **Rename**, **Save as a copy** (of the route on screen) and **Delete this route**, and to change
-  the route itself, by kind. A **route to a destination** is changed right there
-  (`changeSavedQuick`): **Change the start** or **Change the destination** opens the station list
-  (or map) on the route; once a place is picked the route is planned again and the saved route
-  takes it, under the same name (`updateSavedDay` with its new `inputs` and `summary`); **Turn it
-  round** swaps start and destination, the way back. A toast says it changed, with Undo; a pick
-  with no route between the two leaves it as it was. A **day** is changed in the Plan tab with all
-  its settings: **Change the day (start, times, stops)** plans the day
+  menu: **Rename**, **Change plan**, **Save as a copy** (of the route on screen) and **Delete this
+  route**. **Change plan** opens it in the Plan tab, in the planner it was made with. A **route to a
+  destination** (`editSavedQuick`) opens under *To a destination* with its start and destination and
+  "Changing <name>" above them; the Calculate button reads **Update this route** meanwhile
+  (`updateEditedQuick`): it plans the route and stores it in the same saved route, under the same
+  name, then follows it in Route, with Undo for a moment; **Stop changing** leaves it as it was. A
+  **day** plans the day
   again in the Plan tab with its saved settings and shows "Changing <name>": plan it again as you
   like, then **Update this route** (stores the new settings, option and summary in the same saved
   day; migration `20261101000000_change_saved_days.sql` lets users update those columns) or
