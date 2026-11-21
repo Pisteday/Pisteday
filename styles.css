@@ -4499,8 +4499,9 @@ body:not(.has-area) .tabbar-btn {
 .tour-hole {
   position: fixed;
   border-radius: 14px;
+  transition: none;
   box-shadow: 0 0 0 200vmax rgba(8, 22, 41, 0.66);
-  outline: 2px solid rgba(255, 255, 255, 0.9);
+  outline: 2px solid rgba(255, 255, 255, 0.75);
   pointer-events: none;
   transition: left 0.25s ease, top 0.25s ease, width 0.25s ease, height 0.25s ease;
 }
@@ -4699,4 +4700,32 @@ body:not(.on-plan) #area-switch-btn {
 .map-step-undo .ui-icon {
   width: 18px;
   height: 18px;
+}
+
+/* Tour, robust placement: the note never covers what it points at */
+.tour-hole {
+  transition: none !important; /* follows the screen every frame */
+}
+
+.tour-bubble {
+  animation: none;
+  transition: opacity 0.15s ease;
+}
+
+.tour-foot .intro-dots {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--fg-6a7d92);
+}
+
+/* The area picker leaves room at the top for the note, and cannot be
+   closed with ✕ while the tour asks you to choose an area */
+body.tour-room-top.picker-open #area-picker {
+  top: calc(env(safe-area-inset-top) + var(--tour-room, 170px));
+  max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - var(--tour-room, 170px) - 76px);
+  animation: none;
+}
+
+body.touring .area-picker-close {
+  display: none;
 }
