@@ -140,15 +140,19 @@ areas it overlaps. For a few parts they are set under `splits` in
 di Fassa", which can be found by searching Val Gardena, Gröden, Selva, Ortisei and so on. The build
 report lists every part and what became of it.
 
-The first time the app opens (after signing in, when accounts are on) a hands-on **tour** walks
-through the app as for someone new: it opens the area picker and waits until you choose an area,
-then asks you to tap Plan, Route, Map and Settings yourself. When a tab opens it lights up its
-parts one at a time (the two ways to plan, start and destination, the route bar, the steps, the
-map and its location button, route preferences…), each with a short note and an arrow. Only the
-lit-up control responds while the tour runs; Skip is always there. The area list shows as for someone new (no last area, no favourites). The light and the note follow
-the screen every frame (a pop-up sliding in, the keyboard, scrolling); the note goes above or below
-the part where it fits without covering it, and the area picker leaves room at the top for it. A
-step asking for a tap whose control is not on screen shows Next instead, so the tour never gets
+The first time the app opens (after signing in, when accounts are on) a hands-on **tour** has you
+plan a first route yourself, as someone new: choose an area, tap Plan, pick a start and a
+destination in the station list, tap Calculate route, tick off the first step, save the route
+with ★, tap Map and tick off the next step above the map. It then opens Whole day and explains
+its fields (start and end, time and km, lunch and stops, Plan my day) without planning one,
+closes the route to show recent and saved routes, and ends in Settings. Steps that ask you to do
+something wait until it is done (`until`); a sheet a step opens (the station list, the save
+sheet) is lit up and usable (`allow`). Only the lit-up control responds while the tour runs; Skip
+is always there. The area list shows as for someone new (no last area, no favourites). The light
+and the note follow the screen every frame (a pop-up sliding in, the keyboard, scrolling); the
+note goes above or below the part where it fits without covering it, and the area picker and the
+station list leave room at the top for it. A step asking for a tap whose control is not on screen
+shows Next instead, so the tour never gets
 stuck. **Settings → Tour** runs it
 again (`INTRO_STEPS`, `showIntro`, `placeTour`; seen once, kept as `skirouter:intro-seen`). The area picker is a **pop-up** over the app (`showAreaPicker`). Before an area is open it is
 all there is: the tab bar shows behind it, dimmed, and its buttons cannot be used yet. Once an area
