@@ -774,7 +774,7 @@ function storedActiveRoute() {
 
 // A tab tapped before a ski area is open: say that one is needed first, on
 // the area picker (where the app starts).
-// Settings needs no area: your account, preferences and the guide are there.
+// Settings needs no area: your account and preferences are there.
 const AREA_FIRST = { plan: 'plan a route', route: 'see your route', map: 'see the map' };
 function askForAreaFirst(tab) {
   if (currentScreen() !== 'picker') showAreaPicker(); // from Settings: back to the picker
