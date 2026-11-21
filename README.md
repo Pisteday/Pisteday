@@ -1,4 +1,6 @@
-# SkiRouter
+# Pisteday
+
+*Formerly SkiRouter. The repository, the GitHub Pages address and the keys the app keeps on the phone (`skirouter:…`, `skiplanner:…`) keep the old name, so nothing is lost.*
 
 Route planner for ski areas: pick a lift station, pick a destination, get the lifts and pistes to take.
 Works on phone, tablet and laptop, and offline on the mountain once it has been opened.
@@ -29,7 +31,7 @@ Only the planner files go online: `index.html`, `config.js`, `account.js`, `icon
 **The landing page** is `about/` (on the site: `…/about/`). The app's own scope (`manifest.webmanifest`:
 `scope` and `start_url` `./index.html`, `id` `./` so installed apps stay the same app) covers only
 `index.html`, so from the installed app the landing page, terms and privacy open in the
-browser, in a tab of their own (`target="_blank"`), and the app stays open where it was. It has what SkiRouter does, screenshots,
+browser, in a tab of their own (`target="_blank"`), and the app stays open where it was. It has what Pisteday does, screenshots,
 free versus the season pass, how to put it on the home screen (iPhone, Android, laptop — the
 steps for the device you visit with open first), and questions. The app links to it from the
 area picker and Settings.
@@ -164,7 +166,7 @@ the site. Start it by hand from **Actions → Fetch mountain restaurants → Run
 
 ### Our own OpenStreetMap extract
 
-The public Overpass API asks commercial users to run their own server, so SkiRouter does not
+The public Overpass API asks commercial users to run their own server, so Pisteday does not
 use it. `tools/osm-extract.sh` makes an extract instead:
 - `tools/osm-regions.mjs` picks, from Geofabrik's region list, the smallest regions that hold
   the ski areas (Tirol rather than Austria), so as little as possible is downloaded;
@@ -207,7 +209,7 @@ says so.
   **Route preferences** (colours, pace, drag lifts, ski bus, avoided lifts and pistes; the
   **Route preferences** line in the Plan tab opens the same screen, with **Back to planning**)
   and **Ski area**; **App**: **App settings** (appearance, terms, privacy, credits), **Guide**
-  (`guide/`) and **About SkiRouter** (the landing page); both open in the browser. Each line says what is set, e.g. "Blue, Red · sporty pace".
+  (`guide/`) and **About Pisteday** (the landing page); both open in the browser. Each line says what is set, e.g. "Blue, Red · sporty pace".
 
 Route and Map always show the same route, the active one. The bar at their top says which, and
 opens a menu: **Recent** (the last route to a destination and the last day, so a quick detour
@@ -622,7 +624,7 @@ to go.
 While you scroll through the steps, a bar stays at the top of the screen with the progress: steps done, km and time still to go (and, in the day
 plan, ahead or behind, or before starting when you are back; **↻ Replan from here** is in the step menu, see below). There is
 no title or separate totals above it: the bar opens the card, to keep it compact.
-The Route and Map tabs show no SkiRouter header (logo, ski area, live lift status): the route bar is at the top of the screen, so the route gets all the room; closed lifts on the route still show in the route itself. They always open at the top of the page. The map (Map tab) then takes the height from where it starts down to the
+The Route and Map tabs show no Pisteday header (logo, ski area, live lift status): the route bar is at the top of the screen, so the route gets all the room; closed lifts on the route still show in the route itself. They always open at the top of the page. The map (Map tab) then takes the height from where it starts down to the
 tab bar, whatever the size of the phone, so the whole map is in view without scrolling (also after turning the phone). The step you
 are at is marked in the list; ticking one still brings the next into view.
 Progress is stored on the phone, so a route being followed comes back when the app is

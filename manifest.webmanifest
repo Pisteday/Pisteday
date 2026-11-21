@@ -1,7 +1,7 @@
 {
-  "name": "SkiRouter",
-  "short_name": "SkiRouter",
-  "description": "Plan your route between lifts and pistes — works offline on the mountain.",
+  "name": "Pisteday",
+  "short_name": "Pisteday",
+  "description": "Plan your ski day, lift by lift — works offline on the mountain.",
   "id": "./",
   "start_url": "./index.html",
   "scope": "./index.html",

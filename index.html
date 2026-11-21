@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
-  <title>SkiRouter — your route over the lifts and pistes</title>
-  <meta name="description" content="Plan your route between lifts and pistes — works offline on the mountain.">
+  <title>Pisteday — plan your ski day, lift by lift</title>
+  <meta name="description" content="Plan your ski day, lift by lift — works offline on the mountain.">
   <meta name="theme-color" content="#081629">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
@@ -14,7 +14,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="SkiRouter">
+  <meta name="apple-mobile-web-app-title" content="Pisteday">
   <link rel="stylesheet" href="vendor/fonts/fonts.css">
   <link rel="stylesheet" href="styles.css">
   <!-- The look (Preferences → Appearance) before the first paint, so a dark
@@ -30,7 +30,7 @@
   <div class="snowfall" aria-hidden="true"></div>
   <div class="header-inner">
     <div class="header-top">
-      <div class="logo">Ski<span>Route</span>r</div>
+      <div class="logo">Piste<span>day</span></div>
       <button class="area-chip" id="area-switch-btn" type="button" onclick="showAreaPicker()" style="display:none" aria-label="Change ski area">
         <i data-i="area"></i><span class="area-chip-name" id="header-area"></span><i data-i="down"></i>
       </button>
@@ -72,12 +72,12 @@
       <!-- Free or Premium: what each gives (only while payments are on) -->
       <fieldset class="gate-plans" id="gate-plans" data-for="signup">
         <legend class="sel-label">Choose your account</legend>
-        <!-- While SkiRouter is being tested: the only one to choose -->
+        <!-- While Pisteday is being tested: the only one to choose -->
         <label class="gate-plan gate-plan-test" id="gate-plan-test" hidden>
           <input type="radio" name="gate-plan" value="test">
           <span class="gate-plan-body">
             <span class="gate-plan-head"><strong>Test version</strong><small>€0</small></span>
-            <span class="gate-plan-note">Everything in Premium, free while SkiRouter is being tested.</span>
+            <span class="gate-plan-note">Everything in Premium, free while Pisteday is being tested.</span>
           </span>
         </label>
         <label class="gate-plan">
@@ -190,12 +190,12 @@
       </button>
       <a class="settings-item" href="guide/" target="_blank" rel="noopener">
         <span class="settings-ico"><i data-i="guide"></i></span>
-        <span class="settings-text"><strong>Guide</strong><small>how SkiRouter works, step by step</small></span>
+        <span class="settings-text"><strong>Guide</strong><small>how Pisteday works, step by step</small></span>
         <i data-i="right"></i>
       </a>
       <a class="settings-item" href="about/" target="_blank" rel="noopener">
         <span class="settings-ico"><i data-i="info"></i></span>
-        <span class="settings-text"><strong>About SkiRouter</strong><small>what it does, and how to put it on your home screen</small></span>
+        <span class="settings-text"><strong>About Pisteday</strong><small>what it does, and how to put it on your home screen</small></span>
         <i data-i="right"></i>
       </a>
     </div>
@@ -241,7 +241,7 @@
     </div>
     <p class="area-credit">Ski area data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a>
       (ODbL), via <a href="https://openskimap.org" target="_blank" rel="noopener">OpenSkiMap</a>.
-      <a href="about/" target="_blank" rel="noopener">About SkiRouter</a></p>
+      <a href="about/" target="_blank" rel="noopener">About Pisteday</a></p>
   </div>
 
   <!-- Preferences: a screen of its own, personal and kept on this phone -->

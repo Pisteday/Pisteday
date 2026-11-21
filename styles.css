@@ -4342,7 +4342,7 @@ body.no-header main {
   margin: 0 0 8px;
 }
 
-/* While SkiRouter is being tested: Free and Premium shown, not yet to choose */
+/* While Pisteday is being tested: Free and Premium shown, not yet to choose */
 .gate-plan.is-unavailable {
   position: relative;
   cursor: default;

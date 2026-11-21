@@ -27,7 +27,7 @@ Deno.serve(async req => {
     console.error('app_settings', settingsError);
     return json({ error: `The payment could not be started (settings: ${settingsError.message}).` }, 500);
   }
-  if (!settings?.payments_on) return json({ error: 'There is nothing to pay while SkiRouter is being tested.' }, 409);
+  if (!settings?.payments_on) return json({ error: 'There is nothing to pay while Pisteday is being tested.' }, 409);
   const season = currentSeason();
   const { data: profile } = await db.from('profiles').select('paid_until').eq('id', user.id).single();
   if (profile?.paid_until && new Date(profile.paid_until) >= season.until) {
@@ -39,7 +39,7 @@ Deno.serve(async req => {
     method: 'POST',
     body: JSON.stringify({
       amount: { currency: 'EUR', value: amount },
-      description: `SkiRouter season pass ${season.label}`,
+      description: `Pisteday Premium ${season.label}`,
       redirectUrl: `${APP_URL}/index.html?paid=1`, // the app's own page, inside its scope (manifest)
       webhookUrl: `${Deno.env.get('SUPABASE_URL')}/functions/v1/mollie-webhook`,
       metadata: { user_id: user.id, season: season.label, withdrawal_waived_at: waivedAt },
