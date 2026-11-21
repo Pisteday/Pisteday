@@ -4588,3 +4588,8 @@ body:not(.has-area) .tabbar-btn {
 @media (prefers-reduced-motion: reduce) {
   .intro-card { animation: none; }
 }
+
+/* The open ski area (top right) only on the Plan tab */
+body:not(.on-plan) #area-switch-btn {
+  display: none !important;
+}

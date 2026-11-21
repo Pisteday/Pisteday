@@ -702,6 +702,8 @@ let activeRoute = null; // 'quick' or 'day': the route Route and Map show
 
 function showScreen(name) {
   document.body.classList.toggle('picker-open', name === 'picker');
+  // The ski area's name (top right) only on Plan; Settings has it under Ski area
+  document.body.classList.toggle('on-plan', name === 'plan');
   Object.entries(SCREENS).forEach(([key, id]) => { document.getElementById(id).style.display = key === name ? 'block' : 'none'; });
   document.getElementById('planner-cards').style.display = name === 'plan' || name === 'route' ? 'block' : 'none';
   // Route and Map: no Pisteday header, the route gets the whole screen

@@ -145,7 +145,8 @@ short cards explains the basics: the ski area, planning a route or a whole day, 
 Route and Map, and Settings. Every card has Skip; **Settings → Introduction** shows it again
 (`showIntro`; seen once, kept as `skirouter:intro-seen`). The area picker is a **pop-up** over the app (`showAreaPicker`). Before an area is open it is
 all there is: the tab bar shows behind it, dimmed, and its buttons cannot be used yet. Once an area
-is open the pop-up opens from the area's name in the header and closes with ✕, a tap beside it or
+is open the pop-up opens from the area's name in the header (shown on the Plan tab only; Settings
+has it under Ski area) and closes with ✕, a tap beside it or
 Escape, leaving the screen you were on as it was (`closeAreaPicker`). The app starts on the area picker, with the area used last on top (*Your last ski area*); that
 area opens as it was left. Opening another area clears what was chosen in it before (the route
 being followed, the day's start, end and stops; `clearAreaSelections` in `app.js`); saved routes,
