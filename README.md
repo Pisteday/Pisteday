@@ -226,8 +226,14 @@ says so.
   soon as it is calculated. A day shows its options right there (Option 1, 2, 3, under
   **Choose your day**), with **Save this route** and **Show the steps**.
 - **Route** — the route being followed, step by step: ticking off, replan from here, the late
-  warning. Without a route open: **Your routes**, with a button to plan a new one, the recent routes
-  and every saved route (✎ beside each: rename, change, delete). **✕** beside the route's name closes it and comes back here (`closeRoute`; kept closed per
+  warning. The route bar at the top: **My routes** (☰, with how many routes there are), the route's
+  name, ☆/★ and ✕. **My routes** (`showRouteMenu`, the same list as the Route tab with no route
+  open, `renderEmptySaved`; both from `routeList`) has the route open now, the recent routes and
+  every saved route, with **⋯** beside each saved one (rename, save as a copy, change, delete), and
+  **New route**. ☆ saves the route on screen; a saved route has a filled ★, which opens its ⋯ menu
+  (`routeStarClicked`). Deleting takes effect at once with **Undo** for six seconds; only then is
+  it deleted from the account (`deleteSavedDay`, `commitPendingDelete`; leaving the app finishes
+  it). **✕** beside the route's name closes it and shows My routes (`closeRoute`; kept closed per
   area as `skirouter:active:<area>` = `none`, until another route is opened).
 - **Map** — the same route on the map, following the step you are at; without a route the whole
   area with its km, lifts and altitude, drawn as a piste map. With the whole area in view it shows
@@ -252,7 +258,7 @@ not saved", `keepUnsavedDay`): the planner holds one day at a time, so it is pla
 its settings when picked, with its option and ticks; planning a new day takes its place. A route to
 a destination can be saved too (★ in Route and Map): it keeps its start and destination (in
 `inputs`, with `kind: 'quick'`, so no new database column) and is planned again with today's lift
-status when opened (`openSavedQuick`); its ✎ menu offers Rename and Delete. A day
+status when opened (`openSavedQuick`); its ⋯ menu offers Rename, Save as a copy and Delete. A day
 plan that is not saved yet has **★** beside its name in Route and Map: it asks for a name and
 saves it there (`saveRouteFromTab`), the same as **Save this route** in the Plan tab. The active
 route is kept per area (`skirouter:active:<area>`); saved routes are kept on the phone too
@@ -514,7 +520,7 @@ with the account, so they follow you to another phone. A free account plans quic
 the **season pass** (one payment per winter, valid until 30 June; bought from May on it is
 for the coming season) adds the **day planner** and **saving days** in the account. **Settings →
 Account settings** shows the account: email, date of birth, country, season pass, sign out and
-delete account. Saved routes are not listed there: they are in the Route tab (Your routes). In the app the paid
+delete account. Saved routes are not listed there: they are in My routes. In the app the paid
 account is called **Premium** (bought as a season pass). While payments are on, creating an
 account asks **Free or Premium** and lists what each gives; with Premium chosen the app goes to
 Account settings right after the account is made, where it is paid (`offerPremiumAfterSignUp`).
@@ -537,8 +543,8 @@ How it fits together:
   button only works once it is ticked. The checkout function refuses a payment without it
   (`waiveWithdrawal`) and keeps the moment in `payments.withdrawal_waived_at` and in the Mollie
   payment's metadata, as proof (migration `20261114000000_withdrawal_consent.sql`).
-- **Changing a saved route**: the ✎ beside a saved route (in Your routes; not in the route menu, which only switches routes) opens its own
-  menu: **Rename**, **Change the route** and **Delete this route**. Change the route plans the day
+- **Changing a saved route**: the ⋯ beside a saved route in My routes, or its filled ★ while it is open, opens its own
+  menu: **Rename**, **Save as a copy** (of the route on screen), **Change the route** (a day) and **Delete this route**. Change the route plans the day
   again in the Plan tab with its saved settings and shows "Changing <name>": plan it again as you
   like, then **Update this route** (stores the new settings, option and summary in the same saved
   day; migration `20261101000000_change_saved_days.sql` lets users update those columns) or

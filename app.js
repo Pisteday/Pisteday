@@ -860,32 +860,69 @@ function routeTitle(kind) {
 function renderRoutePicker() {
   const has = activeRoute && plannerHasRoute(activeRoute);
   const any = ['quick', 'day'].some(plannerHasRoute) || savedRoutesHere().length;
-  const t = has ? routeTitle(activeRoute) : any ? { kind: 'Your routes', title: 'Choose or plan a route' } : { kind: 'No route yet', title: 'Plan a route' };
+  const t = has ? routeTitle(activeRoute) : any ? { kind: 'My routes', title: 'Choose or plan a route' } : { kind: 'No route yet', title: 'Plan a route' };
   document.getElementById('route-picker-kind').textContent = t.kind;
   document.getElementById('route-picker-title').textContent = t.title;
   document.getElementById('route-close').style.display = has ? '' : 'none';
-  // ★: a day plan that is not a saved route yet
-  document.getElementById('route-save').style.display = has && typeof canSaveShownRoute === 'function' && canSaveShownRoute() ? '' : 'none';
+  // How many routes My routes holds
+  const n = routeList().count;
+  const count = document.getElementById('route-count');
+  count.textContent = n ? String(n) : '';
+  count.style.display = n ? '' : 'none';
+  // ★: ☆ saves the route on screen; filled when it is a saved route (its menu)
+  const star = document.getElementById('route-save');
+  const saved = has && typeof shownSavedRoute === 'function' ? shownSavedRoute() : null;
+  const canSave = has && typeof canSaveShownRoute === 'function' && canSaveShownRoute();
+  star.style.display = saved || canSave ? '' : 'none';
+  star.classList.toggle('is-saved', !!saved);
+  star.setAttribute('aria-label', saved ? `Saved route "${saved.name}": rename, copy or delete` : 'Save this route');
+  star.title = saved ? 'Saved route: rename, copy or delete' : 'Save this route';
 }
 
-function routePickerOptions() {
-  const options = [];
+// My routes: the route open now, the recent ones, and the saved ones (with
+// ⋯ to rename, copy or delete). The same list in the pop-up from the route
+// bar and on the Route tab with no route open.
+function routeList() {
+  const open = [], recent = [], saved = [];
+  const view = () => navTo(document.getElementById('route-screen').dataset.view || 'route');
   ['quick', 'day'].filter(plannerHasRoute).forEach(kind => {
     const t = routeTitle(kind);
-    options.push({ group: 'Recent', icon: kind === 'quick' ? 'flag' : 'day', label: t.title, sub: t.kind, on: kind === activeRoute,
-      run: () => { setActiveRoute(kind); navTo(document.getElementById('route-screen').dataset.view || 'route'); } });
+    const item = { icon: kind === 'quick' ? 'flag' : 'day', label: t.title, sub: t.kind, on: kind === activeRoute,
+      run: () => { setActiveRoute(kind); view(); } };
+    (item.on ? open : recent).push(item);
   });
   // The day plan a saved route took the place of
   const kept = typeof unsavedDay === 'function' ? unsavedDay() : null;
-  if (kept) options.push({ group: 'Recent', icon: 'day', label: kept.title, sub: keptDaySub(kept), run: openUnsavedDay });
-  if (typeof savedDays !== 'undefined' && (!accountsOn || account)) {
-    const shown = activeRoute === 'day' ? shownSavedDay() : activeRoute === 'quick' ? shownSavedQuick() : null;
-    savedDays.forEach(day => options.push({ group: 'Saved routes', icon: isQuickSaved(day) ? 'flag' : 'day', label: day.name, on: day.id === shown?.id,
-      sub: savedRouteSub(day),
-      run: () => openSavedDay(day.id) }));
-  }
-  options.push({ group: '', icon: 'plus', label: 'Plan a new route', run: () => navTo('plan') });
-  return options;
+  if (kept) recent.push({ icon: 'day', label: kept.title, sub: keptDaySub(kept), run: openUnsavedDay });
+  const shown = typeof shownSavedRoute === 'function' && activeRoute && plannerHasRoute(activeRoute) ? shownSavedRoute() : null;
+  savedRoutesHere().forEach(day => saved.push({ icon: isQuickSaved(day) ? 'flag' : 'day', label: day.name, sub: savedRouteSub(day),
+    on: day.id === shown?.id, id: day.id, run: () => openSavedDay(day.id) }));
+  // A saved route that is open shows once, among the saved ones
+  const openList = shown ? [] : open;
+  return { open: openList, recent, saved, count: openList.length + recent.length + saved.length };
+}
+
+function routeListHtml(list) {
+  const row = (item, i, part) => {
+    const btn = `<button type="button" class="step-menu-btn route-menu-btn${item.on ? ' on' : ''}" data-run="${part}:${i}">${ui(item.icon)}
+      <span><strong>${escapeHtml(item.label)}</strong><small>${escapeHtml(item.sub)}${item.on ? ' · open now' : ''}</small></span>${item.on ? ui('check') : ''}</button>`;
+    return item.id
+      ? `<div class="route-menu-row">${btn}<button type="button" class="route-menu-more" data-more="${escapeHtml(item.id)}" aria-label="Rename, copy or delete ${escapeHtml(item.label)}">${ui('more')}</button></div>`
+      : btn;
+  };
+  const part = (name, title, icon) => list[name].length
+    ? `<div class="route-list-title">${ui(icon)} ${title}</div>` + list[name].map((item, i) => row(item, i, name)).join('') : '';
+  return part('open', 'Open now', 'route') + part('recent', 'Recent', 'clock') + part('saved', 'Saved', 'star');
+}
+
+function bindRouteList(el, list, before = () => {}) {
+  el.querySelectorAll('[data-run]').forEach(btn => btn.addEventListener('click', () => {
+    const [name, i] = btn.dataset.run.split(':');
+    before();
+    list[name][+i].run();
+  }));
+  // ⋯: rename, copy or delete; from the pop-up, back to it afterwards
+  el.querySelectorAll('[data-more]').forEach(btn => btn.addEventListener('click', () => showSavedDayMenu(btn.dataset.more, el.id === 'route-menu' ? showRouteMenu : null)));
 }
 
 function keptDaySub(kept) {
@@ -911,23 +948,17 @@ function showRouteMenu() {
     menu.addEventListener('click', event => { if (event.target === menu) menu.classList.remove('open'); });
     document.body.appendChild(menu);
   }
-  const options = routePickerOptions();
-  let group = null;
-  menu.innerHTML = `<div class="step-menu-panel" role="menu">${options.map((o, i) => {
-    const head = o.group !== group && o.group ? `<div class="step-menu-title">${escapeHtml(o.group)}</div>` : '';
-    group = o.group;
-    const btn = `<button type="button" class="step-menu-btn route-menu-btn${o.on ? ' on' : ''}" role="menuitem" data-option="${i}">${ui(o.icon)}
-      <span><strong>${escapeHtml(o.label)}</strong>${o.sub ? `<small>${escapeHtml(o.sub)}</small>` : ''}</span>${o.on ? ui('check') : ''}</button>`;
-    // Only to switch routes: changing a saved route is done in Your routes
-    // (the Route tab with no route open, after ✕), or in Settings → Account.
-    return head + btn;
-  }).join('')}
-    <button type="button" class="step-menu-btn step-menu-cancel">Cancel</button></div>`;
-  menu.querySelectorAll('[data-option]').forEach(btn => btn.addEventListener('click', () => {
-    menu.classList.remove('open');
-    options[+btn.dataset.option].run();
-  }));
-  menu.querySelector('.step-menu-cancel').addEventListener('click', () => menu.classList.remove('open'));
+  const list = routeList();
+  const close = () => menu.classList.remove('open');
+  menu.innerHTML = `<div class="step-menu-panel" role="dialog" aria-label="My routes">
+      <div class="route-menu-head"><strong>My routes</strong>
+        <button type="button" class="route-menu-new">${ui('plus')} New route</button></div>
+      ${list.count ? routeListHtml(list) : '<p class="route-menu-none">No routes yet. Plan one: it shows here, and the ones you save with ☆ stay here.</p>'}
+      <button type="button" class="step-menu-btn step-menu-cancel">Close</button>
+    </div>`;
+  bindRouteList(menu, list, close);
+  menu.querySelector('.route-menu-new').addEventListener('click', () => { close(); navTo('plan'); });
+  menu.querySelector('.step-menu-cancel').addEventListener('click', close);
   menu.classList.add('open');
 }
 
@@ -936,31 +967,15 @@ function savedRoutesHere() {
   return typeof savedDays !== 'undefined' && (!accountsOn || account) ? savedDays : [];
 }
 
-// No route open: all your routes. The recent ones (tap to go back to one)
-// and every saved route, with ✎ to rename, change or delete it; above them
-// the button to plan a new one.
+// No route open: My routes on the Route tab itself, under the button to plan
+// a new one.
 function renderEmptySaved() {
   const el = document.getElementById('route-empty-saved');
-  const recent = ['quick', 'day'].filter(plannerHasRoute);
-  const days = savedRoutesHere();
-  const kept = typeof unsavedDay === 'function' ? unsavedDay() : null; // the day plan a saved route took the place of
-  const any = recent.length || days.length || kept;
-  document.getElementById('route-empty-title').textContent = any ? 'Your routes' : 'No route yet';
-  document.getElementById('route-empty-intro').style.display = any ? 'none' : '';
-  const item = (attrs, icon, title, sub) => `<button type="button" class="route-empty-day" ${attrs}>${ui(icon)}<span><strong>${escapeHtml(title)}</strong><small>${escapeHtml(sub)}</small></span></button>`;
-  el.innerHTML = (recent.length || kept ? `<div class="prefs-label">${ui('clock')} Recent</div>` + recent.map(kind => {
-    const t = routeTitle(kind);
-    return item(`data-recent="${kind}"`, kind === 'quick' ? 'flag' : 'day', t.title, t.kind);
-  }).join('') + (kept ? item('data-kept', 'day', kept.title, keptDaySub(kept)) : '') : '')
-    + (days.length ? `<div class="prefs-label">${ui('star')} Saved routes</div>` + days.map((day, i) =>
-      `<div class="route-menu-row">${item(`data-day="${i}"`, isQuickSaved(day) ? 'flag' : 'day', day.name, savedRouteSub(day))}<button type="button" class="route-menu-del" data-edit="${i}" aria-label="Change ${escapeHtml(day.name)}">${ui('edit')}</button></div>`).join('') : '');
-  el.querySelectorAll('[data-recent]').forEach(btn => btn.addEventListener('click', () => {
-    setActiveRoute(btn.dataset.recent);
-    navTo(document.getElementById('route-screen').dataset.view || 'route');
-  }));
-  el.querySelector('[data-kept]')?.addEventListener('click', openUnsavedDay);
-  el.querySelectorAll('[data-day]').forEach(btn => btn.addEventListener('click', () => openSavedDay(days[+btn.dataset.day].id)));
-  el.querySelectorAll('[data-edit]').forEach(btn => btn.addEventListener('click', () => showSavedDayMenu(days[+btn.dataset.edit].id)));
+  const list = routeList();
+  document.getElementById('route-empty-title').textContent = list.count ? 'My routes' : 'No route yet';
+  document.getElementById('route-empty-intro').style.display = list.count ? 'none' : '';
+  el.innerHTML = routeListHtml(list);
+  bindRouteList(el, list);
 }
 
 // Map without a route: the whole area, its facts above it.
@@ -3011,7 +3026,7 @@ const INTRO_STEPS = [
   { target: ['#steps .checkable'], title: 'One step at a time', text: 'Each lift and piste with its number and colour, as on the signs, with its time and length. Hold or swipe a step to avoid that lift or piste.' },
   { target: ['#steps .checkable .step-check'], title: 'Tick it off', text: 'Done with a step? Tap its circle: it is ticked off and the next one lights up.',
     demo: () => document.querySelector('#steps .checkable.next .step-check')?.click() },
-  { target: ['#route-save'], title: 'Save it', text: 'Tap ★ to save the route with a name. Then you can open it again any time.',
+  { target: ['#route-save'], title: 'Save it', text: 'Tap ☆ to save the route with a name. A saved route has a filled ★: tap it to rename, copy or delete the route.',
     enter: () => window.scrollTo(0, 0) },
   // On the map
   { target: ['#q-map'], title: 'Map', text: 'Map shows the same route. The step you are on is drawn thick, the next ones thinner. Zoom in for piste numbers and restaurants.',
@@ -3029,11 +3044,16 @@ const INTRO_STEPS = [
   { target: ['#stops-setting'], title: 'Lunch and stops', text: 'Lunch at a mountain restaurant, and places to pass: a lift, a viewpoint, a snow park.' },
   { target: ['#day-card .plan-btn'], title: 'Plan my day', text: 'Plans your day and gives you a few routes to choose from. You follow the one you choose like any route.' },
   // Your routes
-  { target: ['#route-empty-saved', '#route-empty'], title: 'Your routes', text: 'With ✕ next to its name you close a route. Route then lists your recent and saved routes: tap one to open it again, ✎ renames or deletes it.',
-    enter: () => { if (!tourDemo) return; navTo('route'); closeRoute(); window.scrollTo(0, 0); } },
+  { target: ['#route-list-btn'], title: 'My routes', text: 'All your routes in one place: the one open now, the recent ones and the ones you saved.',
+    enter: () => { if (!tourDemo) return; navTo('route'); window.scrollTo(0, 0); } },
+  { target: ['#route-menu.open .step-menu-panel'], title: 'Switch or change', text: 'Tap a route to open it. ⋯ next to a saved route renames, copies or deletes it. New route plans another one.',
+    enter: () => { if (tourDemo) showRouteMenu(); } },
   // Settings
   { target: ['.settings-item[onclick="openPrefs()"]'], title: 'Settings', text: 'Route preferences: the difficulty you want, your pace, drag lifts, the ski bus, and lifts or pistes to avoid.',
-    enter: () => { if (currentArea) navTo('account'); else openSettings(); } },
+    enter: () => {
+      document.getElementById('route-menu')?.classList.remove('open');
+      if (currentArea) navTo('account'); else openSettings();
+    } },
   { target: ['.settings-item[onclick="showAreaPicker()"]'], title: 'Ski area', text: 'Change your ski area here, or via its name at the top of Plan.' },
   { target: ['.settings-item[onclick="showIntro()"]'], title: 'That is it', text: () => tourState?.area
       ? 'Run this tour again here any time. Enjoy your ski day!'
@@ -3135,7 +3155,7 @@ function tourRestore() {
   tourState = null;
   tourDemo = null;
   if (!st) return;
-  document.getElementById('route-save-menu')?.classList.remove('open');
+  ['route-save-menu', 'route-menu', 'day-edit-menu'].forEach(id => document.getElementById(id)?.classList.remove('open'));
   if (document.getElementById('sheet').style.display !== 'none') closeSheet();
   sheetView = st.sheetView || 'list';
   if (sheetView === 'list') showSheetView(); // the list, as you left it
