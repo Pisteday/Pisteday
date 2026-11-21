@@ -2935,21 +2935,43 @@ function renderProgress(id, done, total, text, extraHtml = '') {
 
 // ── Tour ─────────────────────────────────────────────────────────────────────
 //
-// An interactive tour the first time the app opens (after signing in, when
-// accounts are on): it lights up the real buttons one by one, with a short
-// note pointing at each. Skip on every step; Settings → Tour runs it again.
+// A hands-on tour the first time the app opens (after signing in, when
+// accounts are on), and again from Settings → Tour: it starts as for someone
+// new, from choosing a ski area, and then has you tap each tab yourself. When
+// a tab opens it lights up what is on it, one part at a time, with a short
+// note pointing at each. Only what the tour asks for can be tapped; Skip is
+// always there.
+//
+// A step either asks you to do something (`tap`: tap the lit-up control;
+// `until`: done once its condition holds, e.g. an area is chosen) or explains
+// (Next). `target` lists places to light up, the first one on screen wins; an
+// explaining step with none on screen is left out.
 
 const INTRO_SEEN_KEY = 'skirouter:intro-seen';
 const INTRO_STEPS = [
-  { title: 'Welcome to Pisteday', text: 'Your ski day, planned. A quick look at where everything is.' },
-  { target: ['#area-switch-btn', '.settings-item[onclick="showAreaPicker()"]', '#area-search'], title: 'Your ski area',
-    text: 'Pick your ski area here. Once opened it works offline. Change it later via its name at the top of Plan.' },
-  { target: ['#nav-plan'], title: 'Plan', text: 'Plan a route to a destination, or a whole day with the km you want, lunch and stops.' },
-  { target: ['#nav-route'], title: 'Route', text: 'Your route step by step. Tick off steps as you go, and save it with ★.' },
-  { target: ['#nav-map'], title: 'Map', text: 'Your route on the map, with the step you are on highlighted.' },
-  { target: ['#nav-account'], title: 'Settings', text: 'The difficulty you want, your pace, lifts or pistes to avoid, and this tour again.' },
+  { title: 'Welcome to Pisteday', text: 'A short tour. Follow the lit-up steps: you tap the buttons yourself.' },
+  { target: ['#area-picker'], title: 'Choose a ski area', text: 'Search for a ski area, village or region, or open a country, and tap your ski area.',
+    enter: () => showAreaPicker(),
+    until: () => !!currentArea && !document.body.classList.contains('picker-open') },
+  { target: ['#nav-plan'], tap: true, title: 'Plan', text: 'Tap Plan.' },
+  { target: ['.plan-mode'], title: 'Two ways to plan', text: 'To a destination: from where you are to one lift or place. Whole day: a full ski day, planned for you.',
+    enter: () => setPlanMode('quick') },
+  { target: ['#from-box'], title: 'Where you are', text: 'Pick the lift or place where you start. A tap on the map works too.' },
+  { target: ['#to-box'], title: 'Where you want to go', text: 'Then pick where you want to go, and tap Calculate route.' },
+  { target: ['#mode-day'], title: 'Whole day', text: 'Set your start, the km you want, lunch and stops, and pick one of a few routes. Part of Premium.' },
+  { target: ['#nav-route'], tap: true, title: 'Route', text: 'Tap Route.' },
+  { target: ['.route-picker-row'], title: 'The route you follow', text: 'Its name is here. Tap it to switch to a recent or saved route; ★ saves it, ✕ closes it.' },
+  { target: ['#route-empty', '#route-screen .steps'], title: 'Step by step', text: 'Your route one step at a time: tick off each lift and piste as you go. With no route open you see your recent and saved routes here.' },
+  { target: ['#nav-map'], tap: true, title: 'Map', text: 'Tap Map.' },
+  { target: ['#a-map', '#q-map', '#d-map'], title: 'The map', text: 'Your route on the map, the step you are on drawn thick. Zoom in for piste numbers and restaurants. With a route, tick off steps above the map.' },
+  { target: ['.map-gps-btn'], title: 'Where am I', text: 'Shows where you are on the mountain.' },
+  { target: ['#nav-account'], tap: true, title: 'Settings', text: 'Tap Settings.' },
+  { target: ['.settings-item[onclick="openPrefs()"]'], title: 'Route preferences', text: 'The difficulty you want, your pace, drag lifts, the ski bus, and lifts or pistes to avoid.' },
+  { target: ['.settings-item[onclick="showAreaPicker()"]'], title: 'Ski area', text: 'Change your ski area here, or via its name at the top of Plan.' },
+  { target: ['.settings-item[onclick="showIntro()"]'], title: 'That is it', text: 'Run this tour again here any time. Enjoy your ski day!' },
 ];
 let introAt = 0;
+let introWait = null; // checking an `until` step
 
 function maybeShowIntro() {
   if (document.documentElement.classList.contains('gated')) return; // after signing in
@@ -2965,48 +2987,67 @@ function showIntro() {
   renderIntro();
 }
 
-// The first of a step's targets that is on screen now (the area's name only
-// shows on Plan, the Ski area row only in Settings, the search in the picker).
+// The first of a step's targets that is on screen now.
 function tourTarget(step) {
   for (const sel of step.target || []) {
-    const el = document.querySelector(sel);
-    const r = el?.getBoundingClientRect();
-    if (el && el.offsetParent !== null && r.width && r.height) return el;
+    for (const el of document.querySelectorAll(sel)) {
+      const r = el.getBoundingClientRect(); // (offsetParent is null for fixed parts, like the area picker)
+      if (r.width && r.height && getComputedStyle(el).visibility !== 'hidden') return el;
+    }
   }
   return null;
 }
 
 function renderIntro() {
+  clearInterval(introWait);
   const step = INTRO_STEPS[introAt];
+  step.enter?.();
+  // An explaining step whose part is not on screen (no map button without a
+  // map, say) is left out
+  if (step.target && !step.tap && !step.until && !tourTarget(step) && introAt < INTRO_STEPS.length - 1) {
+    introAt++;
+    return renderIntro();
+  }
   const last = introAt === INTRO_STEPS.length - 1;
+  const doing = step.tap || step.until; // the app's own button moves the tour on
   document.getElementById('intro-title').textContent = step.title;
   document.getElementById('intro-text').textContent = step.text;
   document.getElementById('intro-dots').innerHTML = INTRO_STEPS.map((s, i) => `<span class="${i === introAt ? 'on' : ''}"></span>`).join('');
-  document.getElementById('intro-back').style.visibility = introAt ? '' : 'hidden';
+  document.getElementById('intro-back').style.display = 'none';
+  document.getElementById('intro-next').style.display = doing ? 'none' : '';
   document.getElementById('intro-next').textContent = last ? 'Get started' : 'Next';
   document.querySelector('#intro .tour-skip').style.visibility = last ? 'hidden' : '';
-  placeTour();
+  document.getElementById('intro').classList.toggle('is-doing', !!doing);
+  if (step.until) introWait = setInterval(() => { if (step.until()) introStep(1); }, 300);
+  setTimeout(placeTour, 60); // after the screen has opened
 }
 
 // Light up the target and put the note next to it, its arrow on the target.
 function placeTour() {
   const tour = document.getElementById('intro');
   if (tour.hidden) return;
+  const step = INTRO_STEPS[introAt];
   const hole = document.getElementById('tour-hole'), bubble = document.getElementById('tour-bubble'), arrow = document.getElementById('tour-arrow');
-  const target = tourTarget(INTRO_STEPS[introAt]);
-  if (target) target.scrollIntoView({ block: 'nearest' });
+  const target = tourTarget(step);
+  if (target && !step.until) target.scrollIntoView({ block: 'nearest' });
   const vw = window.innerWidth, vh = window.innerHeight, pad = 6, gap = 14;
   if (!target) {
-    // No target (welcome): a note in the middle, the whole app dimmed
     hole.style.cssText = `left:${vw / 2}px;top:${vh / 2}px;width:0;height:0`;
     bubble.style.cssText = `left:50%;top:50%;transform:translate(-50%,-50%)`;
     arrow.style.display = 'none';
     return;
   }
   const r = target.getBoundingClientRect();
+  // A large part (the area picker, the map): the note sits over its lower edge
+  const big = r.height > vh * 0.45;
   hole.style.cssText = `left:${r.left - pad}px;top:${r.top - pad}px;width:${r.width + pad * 2}px;height:${r.height + pad * 2}px`;
   const bw = Math.min(340, vw - 24);
   const left = Math.max(12, Math.min(vw - bw - 12, r.left + r.width / 2 - bw / 2));
+  if (big) {
+    bubble.style.cssText = `left:${left}px;width:${bw}px;bottom:${Math.max(12, vh - r.bottom + 12)}px`;
+    arrow.style.display = 'none';
+    return;
+  }
   const below = r.top + r.height / 2 < vh / 2;
   bubble.style.cssText = `left:${left}px;width:${bw}px;` + (below ? `top:${r.bottom + pad + gap}px` : `bottom:${vh - r.top + pad + gap}px`);
   arrow.style.display = '';
@@ -3014,6 +3055,24 @@ function placeTour() {
   arrow.style.left = `${Math.max(18, Math.min(bw - 18, r.left + r.width / 2 - left))}px`;
 }
 window.addEventListener('resize', placeTour);
+window.addEventListener('scroll', () => placeTour(), { passive: true, capture: true });
+
+// During the tour only the tour's own note and the lit-up control respond.
+// A tap on the control asked for moves the tour on, once the app has
+// opened what it opens.
+document.addEventListener('click', event => {
+  const tour = document.getElementById('intro');
+  if (!tour || tour.hidden) return;
+  if (event.target.closest('#tour-bubble')) return;
+  const step = INTRO_STEPS[introAt];
+  const target = (step.tap || step.until) && tourTarget(step);
+  if (target && target.contains(event.target)) {
+    if (step.tap) setTimeout(() => introStep(1), 120);
+    return;
+  }
+  event.preventDefault();
+  event.stopPropagation();
+}, true);
 
 function introStep(delta) {
   document.activeElement?.blur?.(); // no focus ring left on the tapped button
@@ -3024,6 +3083,7 @@ function introStep(delta) {
 }
 
 function closeIntro() {
+  clearInterval(introWait);
   document.getElementById('intro').hidden = true;
   document.body.classList.remove('touring');
   try { localStorage.setItem(INTRO_SEEN_KEY, '1'); } catch {}
@@ -3032,8 +3092,7 @@ function closeIntro() {
 document.addEventListener('keydown', event => {
   if (document.getElementById('intro')?.hidden !== false) return;
   if (event.key === 'Escape') closeIntro();
-  else if (event.key === 'ArrowRight') introStep(1);
-  else if (event.key === 'ArrowLeft') introStep(-1);
+  else if (event.key === 'ArrowRight' && !INTRO_STEPS[introAt].tap && !INTRO_STEPS[introAt].until) introStep(1);
 });
 
 // ── Boot ─────────────────────────────────────────────────────────────────────

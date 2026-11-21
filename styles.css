@@ -4476,6 +4476,16 @@ body:not(.has-area) .tabbar-btn {
   position: fixed;
   inset: 0;
   z-index: 2100; /* above the area picker */
+  pointer-events: none; /* taps go to the app; the tour lets only the lit-up control through */
+}
+
+.tour-bubble {
+  pointer-events: auto;
+}
+
+/* A step where you tap the app itself: the note waits, no Next */
+.tour.is-doing .tour-title::before {
+  content: '👆 ';
 }
 
 .tour[hidden] {
@@ -4483,8 +4493,7 @@ body:not(.has-area) .tabbar-btn {
 }
 
 .tour-catch {
-  position: absolute;
-  inset: 0; /* the app cannot be tapped during the tour */
+  display: none;
 }
 
 .tour-hole {
