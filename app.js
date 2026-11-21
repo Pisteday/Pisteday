@@ -1112,6 +1112,8 @@ function closeSheet() {
   document.getElementById('sheet-list').style.paddingBottom = '';
   unlockPageScroll();
   activeSide = null;
+  // Picking a new start or destination for a saved route: change it now
+  if (typeof quickEditSheetClosed === 'function') setTimeout(quickEditSheetClosed, 0);
 }
 
 // While the picker is open the page behind it stays put, so a swipe scrolls

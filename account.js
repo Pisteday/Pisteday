@@ -676,6 +676,83 @@ async function openSavedDay(id, { edit = false, day = savedDays.find(d => d.id =
   } else navTo('plan');
 }
 
+// ── Changing a saved route to a destination ──────────────────────────────────
+//
+// Straight from its menu: Change the start or Change the destination opens
+// the station list (or map) on the route itself; once a place is picked the
+// route is planned again and the saved route takes the new start or
+// destination, under the same name. Turn it round swaps them: the way back.
+// A toast says it changed, with Undo.
+
+let quickEdit = null; // { id, side, before }: a start or destination being picked for a saved route
+
+async function changeSavedQuick(id, act) {
+  const day = savedDays.find(d => d.id === id);
+  if (!day) return;
+  if (shownSavedQuick()?.id !== id) await openSavedQuick(day); // the route on screen first
+  if (shownSavedQuick()?.id !== id) { showAccountNotice('Could not open this route to change it.'); return; }
+  if (act === 'swap') {
+    if (selected.from?.gps) { showAccountNotice('Your location can only be a starting point.'); return; }
+    swapSides();
+    return finishQuickChange(day);
+  }
+  quickEdit = { id, side: act, before: selected[act]?.place?.id || selected[act]?.id || null };
+  openSheet(act);
+}
+
+// The station list closed: was something new picked for the saved route?
+function quickEditSheetClosed() {
+  if (document.getElementById('sheet').style.display !== 'none') return; // open again (a pick on the way there)
+  const edit = quickEdit;
+  quickEdit = null;
+  if (!edit) return;
+  const now = selected[edit.side]?.place?.id || selected[edit.side]?.id || null;
+  if (now === edit.before) return; // closed without picking
+  const day = savedDays.find(d => d.id === edit.id);
+  if (day) finishQuickChange(day);
+}
+
+async function finishQuickChange(day) {
+  const before = { inputs: day.inputs, summary: day.summary };
+  const back = () => { // the route as it was saved
+    const inputs = day.inputs || {};
+    if (!restorePlace('from', inputs.fromPlace)) restoreStation('from', inputs.from);
+    if (!restorePlace('to', inputs.toPlace)) restoreStation('to', inputs.to);
+    planRoute({ silent: true });
+    openedQuickId = day.id;
+    setActiveRoute('quick');
+  };
+  clearProgress('quick'); // a new route: nothing ticked yet
+  planRoute({ silent: true });
+  const err = document.getElementById('err');
+  if (!plannerHasRoute('quick') || err.classList.contains('visible')) {
+    showAccountNotice(err.textContent || 'No route between these two places.');
+    err.classList.remove('visible');
+    back();
+    return;
+  }
+  const row = currentQuickRow();
+  if (!row || !await updateSavedDay(day.id, { inputs: row.inputs, summary: row.summary })) {
+    showAccountNotice('Could not change the saved route. Try again (it needs a connection).');
+    back();
+    return;
+  }
+  openedQuickId = day.id;
+  setActiveRoute('quick');
+  navTo(document.getElementById('route-screen').dataset.view === 'map' ? 'map' : 'route');
+  refreshRouteLists();
+  showUndoToast(`Changed "${day.name}"`, async () => {
+    hideUndoToast();
+    if (await updateSavedDay(day.id, before)) {
+      const saved = savedDays.find(d => d.id === day.id);
+      if (saved) await openSavedQuick(saved);
+      refreshRouteLists();
+    }
+  });
+  clearTimeout(finishQuickChange.timer);
+  finishQuickChange.timer = setTimeout(hideUndoToast, 6000);
+}
+
 // ── Changing a saved day ─────────────────────────────────────────────────────
 
 let editingDay = null; // the saved day being changed in the Plan tab
@@ -764,7 +841,10 @@ function showSavedDayMenu(id, back = null) {
         <button class="save-day-ok" type="submit">Rename</button>
       </form>
       <div class="save-day-msg"></div>
-      <button type="button" class="step-menu-btn" data-act="route">${ui('route')} Change the route</button>
+      <button type="button" class="step-menu-btn" data-act="route">${ui('route')} Change the day (start, times, stops)</button>
+      <button type="button" class="step-menu-btn" data-act="from">${ui('pin')} Change the start</button>
+      <button type="button" class="step-menu-btn" data-act="to">${ui('flag')} Change the destination</button>
+      <button type="button" class="step-menu-btn" data-act="swap">${ui('swap')} Turn it round (the way back)</button>
       <button type="button" class="step-menu-btn" data-act="copy">${ui('plus')} Save as a copy</button>
       <button type="button" class="step-menu-btn step-menu-danger" data-act="delete">${ui('trash')} Delete this route</button>
       <button type="button" class="step-menu-btn step-menu-cancel">Cancel</button>
@@ -780,9 +860,20 @@ function showSavedDayMenu(id, back = null) {
     if (editingDay === day.id) renderSaveDay();
     close();
   });
+  // A day is changed in the Plan tab, with all its settings; a route to a
+  // destination right here: a new start or destination, or the way back.
   const change = menu.querySelector('[data-act="route"]');
-  if (isQuickSaved(day)) change.remove(); // a route to a destination: rename or delete (plan a new one to change it)
-  else change.addEventListener('click', () => { close(); openSavedDay(day.id, { edit: true }); });
+  const quickActs = ['from', 'to', 'swap'].map(act => menu.querySelector(`[data-act="${act}"]`));
+  if (isQuickSaved(day)) {
+    change.remove();
+    quickActs.forEach(btn => btn.addEventListener('click', () => {
+      menu.classList.remove('open'); // not back to My routes: the route opens
+      changeSavedQuick(day.id, btn.dataset.act);
+    }));
+  } else {
+    quickActs.forEach(btn => btn.remove());
+    change.addEventListener('click', () => { close(); openSavedDay(day.id, { edit: true }); });
+  }
   // A copy of the route on screen, as a saved route of its own
   const copy = menu.querySelector('[data-act="copy"]');
   const onScreen = (activeRoute === 'quick' && shownSavedQuick()?.id === day.id) || (activeRoute === 'day' && shownSavedDay()?.id === day.id);
