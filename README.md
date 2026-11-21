@@ -569,7 +569,7 @@ times), drag lifts and ski bus, and the lifts avoided in this area. The appearan
 **Settings → App settings**. They are kept
 on the phone for every ski area (`skirouter:prefs`), and with the account when accounts are on, and both planners use them. Back to planning (or ‹ Settings) leaves it; a quick route on screen is planned again with the new preferences.
 
-Under the **Pace** switch each pace says what it means, the chosen one highlighted:
+Under the **Pace** switch only the chosen pace says what it means (tap another to see its own):
 **Relaxed** about 7 km/h down the runs (piste times ×1.7) and ~7 min queueing per lift,
 **Normal** about 9 km/h (×1.3) and ~5 min, **Sporty** about 12 km/h and ~3 min. The text is
 worked out from `DAY_PACES` in `dayplan.js`, so it follows any change there.

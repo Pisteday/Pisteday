@@ -257,16 +257,17 @@ function setDayPace(pace, save = true) {
   }
 }
 
-// What each pace means, under the switch: how fast down the runs and how
-// long a queue at each lift, the chosen one first in bold.
+// What the chosen pace means, under the switch: how fast down the runs and
+// how long a queue at each lift. Only the one picked; tap another to see it.
 function renderPaceInfo() {
   const el = document.getElementById('pace-info');
   if (!el) return;
-  el.innerHTML = Object.entries(DAY_PACES).map(([key, p]) => `
-    <div class="pace-info-row${key === dayPace ? ' on' : ''}">
+  const p = DAY_PACES[dayPace] || DAY_PACES.normal;
+  el.innerHTML = `
+    <div class="pace-info-row on">
       <strong>${p.label}</strong>
       <span>~${Math.round(PISTE_KMH / p.piste)} km/h on average down the runs${p.piste > 1 ? ` (piste times ×${p.piste})` : ''} · ~${p.wait} min queueing per lift. ${p.who}</span>
-    </div>`).join('');
+    </div>`;
 }
 
 function dayStorageKey() {
