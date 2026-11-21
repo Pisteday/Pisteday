@@ -375,7 +375,9 @@ function renderAccountAccess() {
     wall.style.display = paid ? 'none' : 'block';
     document.getElementById('day-card').style.display = paid ? '' : 'none';
     document.getElementById('day-result').style.display = paid ? '' : 'none';
-    document.getElementById('mode-day-lock').hidden = paid;
+    // The Premium mark: without Premium, and in the test phase too (free for
+    // now, normally Premium); not for someone who has paid for it.
+    document.getElementById('mode-day-lock').hidden = paymentsOn && paid;
     if (!paid) document.getElementById('day-choice').style.display = 'none';
     document.getElementById('paywall-price').textContent = `€${accountCfg.seasonPrice || '9.99'} · ${seasonLabel()} season`;
   }
