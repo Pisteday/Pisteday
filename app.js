@@ -2902,19 +2902,21 @@ function renderProgress(id, done, total, text, extraHtml = '') {
   `;
 }
 
-// ── Introduction ─────────────────────────────────────────────────────────────
+// ── Tour ─────────────────────────────────────────────────────────────────────
 //
-// Five short cards on the basics, shown the first time the app opens (after
-// signing in, when accounts are on), with Skip on every card. Settings →
-// Introduction shows them again.
+// An interactive tour the first time the app opens (after signing in, when
+// accounts are on): it lights up the real buttons one by one, with a short
+// note pointing at each. Skip on every step; Settings → Tour runs it again.
 
 const INTRO_SEEN_KEY = 'skirouter:intro-seen';
 const INTRO_STEPS = [
-  { icon: 'route', title: 'Welcome to Pisteday', text: 'Your ski day, planned: the lifts and pistes to take, at the difficulty you want and at your pace.' },
-  { icon: 'area', title: 'Choose your ski area', text: 'Every ski area in Europe. Once opened, it works offline on the mountain, without a signal.' },
-  { icon: 'flag', title: 'Plan', text: 'To a destination: pick where you are and where you want to go. Whole day: set your start, the km you want, lunch and stops, and pick one of a few routes.' },
-  { icon: 'map', title: 'Follow it', text: 'Route shows your steps one by one: tick them off as you go. Map shows where you are, with the step you are on highlighted. Closed lifts are flagged live.' },
-  { icon: 'settings', title: 'Make it yours', text: 'In Settings: the difficulty you want (green to black), your pace, and lifts or pistes to avoid. Save a route with ★ to plan it again any time.' },
+  { title: 'Welcome to Pisteday', text: 'Your ski day, planned. A quick look at where everything is.' },
+  { target: ['#area-switch-btn', '.settings-item[onclick="showAreaPicker()"]', '#area-search'], title: 'Your ski area',
+    text: 'Pick your ski area here. Once opened it works offline. Change it later via its name at the top of Plan.' },
+  { target: ['#nav-plan'], title: 'Plan', text: 'Plan a route to a destination, or a whole day with the km you want, lunch and stops.' },
+  { target: ['#nav-route'], title: 'Route', text: 'Your route step by step. Tick off steps as you go, and save it with ★.' },
+  { target: ['#nav-map'], title: 'Map', text: 'Your route on the map, with the step you are on highlighted.' },
+  { target: ['#nav-account'], title: 'Settings', text: 'The difficulty you want, your pace, lifts or pistes to avoid, and this tour again.' },
 ];
 let introAt = 0;
 
@@ -2927,23 +2929,63 @@ function maybeShowIntro() {
 
 function showIntro() {
   introAt = 0;
-  renderIntro();
   document.getElementById('intro').hidden = false;
+  document.body.classList.add('touring');
+  renderIntro();
+}
+
+// The first of a step's targets that is on screen now (the area's name only
+// shows on Plan, the Ski area row only in Settings, the search in the picker).
+function tourTarget(step) {
+  for (const sel of step.target || []) {
+    const el = document.querySelector(sel);
+    const r = el?.getBoundingClientRect();
+    if (el && el.offsetParent !== null && r.width && r.height) return el;
+  }
+  return null;
 }
 
 function renderIntro() {
   const step = INTRO_STEPS[introAt];
   const last = introAt === INTRO_STEPS.length - 1;
-  document.getElementById('intro-ico').innerHTML = ui(step.icon);
   document.getElementById('intro-title').textContent = step.title;
   document.getElementById('intro-text').textContent = step.text;
   document.getElementById('intro-dots').innerHTML = INTRO_STEPS.map((s, i) => `<span class="${i === introAt ? 'on' : ''}"></span>`).join('');
   document.getElementById('intro-back').style.visibility = introAt ? '' : 'hidden';
   document.getElementById('intro-next').textContent = last ? 'Get started' : 'Next';
-  document.querySelector('#intro .intro-skip').style.visibility = last ? 'hidden' : '';
+  document.querySelector('#intro .tour-skip').style.visibility = last ? 'hidden' : '';
+  placeTour();
 }
 
+// Light up the target and put the note next to it, its arrow on the target.
+function placeTour() {
+  const tour = document.getElementById('intro');
+  if (tour.hidden) return;
+  const hole = document.getElementById('tour-hole'), bubble = document.getElementById('tour-bubble'), arrow = document.getElementById('tour-arrow');
+  const target = tourTarget(INTRO_STEPS[introAt]);
+  if (target) target.scrollIntoView({ block: 'nearest' });
+  const vw = window.innerWidth, vh = window.innerHeight, pad = 6, gap = 14;
+  if (!target) {
+    // No target (welcome): a note in the middle, the whole app dimmed
+    hole.style.cssText = `left:${vw / 2}px;top:${vh / 2}px;width:0;height:0`;
+    bubble.style.cssText = `left:50%;top:50%;transform:translate(-50%,-50%)`;
+    arrow.style.display = 'none';
+    return;
+  }
+  const r = target.getBoundingClientRect();
+  hole.style.cssText = `left:${r.left - pad}px;top:${r.top - pad}px;width:${r.width + pad * 2}px;height:${r.height + pad * 2}px`;
+  const bw = Math.min(340, vw - 24);
+  const left = Math.max(12, Math.min(vw - bw - 12, r.left + r.width / 2 - bw / 2));
+  const below = r.top + r.height / 2 < vh / 2;
+  bubble.style.cssText = `left:${left}px;width:${bw}px;` + (below ? `top:${r.bottom + pad + gap}px` : `bottom:${vh - r.top + pad + gap}px`);
+  arrow.style.display = '';
+  arrow.className = `tour-arrow ${below ? 'up' : 'down'}`;
+  arrow.style.left = `${Math.max(18, Math.min(bw - 18, r.left + r.width / 2 - left))}px`;
+}
+window.addEventListener('resize', placeTour);
+
 function introStep(delta) {
+  document.activeElement?.blur?.(); // no focus ring left on the tapped button
   const next = introAt + delta;
   if (next >= INTRO_STEPS.length) return closeIntro();
   introAt = Math.max(0, next);
@@ -2952,6 +2994,7 @@ function introStep(delta) {
 
 function closeIntro() {
   document.getElementById('intro').hidden = true;
+  document.body.classList.remove('touring');
   try { localStorage.setItem(INTRO_SEEN_KEY, '1'); } catch {}
 }
 
