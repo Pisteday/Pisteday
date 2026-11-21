@@ -702,6 +702,8 @@ let activeRoute = null; // 'quick' or 'day': the route Route and Map show
 
 function showScreen(name) {
   document.body.classList.toggle('picker-open', name === 'picker');
+  // The ski area's name (top right) only on Plan; Settings has it under Ski area
+  document.body.classList.toggle('on-plan', name === 'plan');
   Object.entries(SCREENS).forEach(([key, id]) => { document.getElementById(id).style.display = key === name ? 'block' : 'none'; });
   document.getElementById('planner-cards').style.display = name === 'plan' || name === 'route' ? 'block' : 'none';
   // Route and Map: no Pisteday header, the route gets the whole screen
@@ -2908,11 +2910,11 @@ function renderProgress(id, done, total, text, extraHtml = '') {
 
 const INTRO_SEEN_KEY = 'skirouter:intro-seen';
 const INTRO_STEPS = [
-  { icon: 'route', title: 'Welcome to Pisteday', text: 'Your ski day, planned: the lifts and pistes to take, in your colours and at your pace.' },
+  { icon: 'route', title: 'Welcome to Pisteday', text: 'Your ski day, planned: the lifts and pistes to take, at the difficulty you want and at your pace.' },
   { icon: 'area', title: 'Choose your ski area', text: 'Every ski area in Europe. Once opened, it works offline on the mountain, without a signal.' },
   { icon: 'flag', title: 'Plan', text: 'To a destination: pick where you are and where you want to go. Whole day: set your start, the km you want, lunch and stops, and pick one of a few routes.' },
   { icon: 'map', title: 'Follow it', text: 'Route shows your steps one by one: tick them off as you go. Map shows where you are, with the step you are on highlighted. Closed lifts are flagged live.' },
-  { icon: 'settings', title: 'Make it yours', text: 'In Settings: piste colours, your pace, and lifts or pistes to avoid. Save a day with ★ to plan it again any time.' },
+  { icon: 'settings', title: 'Make it yours', text: 'In Settings: the difficulty you want (green to black), your pace, and lifts or pistes to avoid. Save a route with ★ to plan it again any time.' },
 ];
 let introAt = 0;
 
