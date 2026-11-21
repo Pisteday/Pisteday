@@ -49,8 +49,9 @@ served from the site itself (`vendor/fonts/`, from Fontsource), not from Google 
 opening the app sends nobody's IP address to Google; the service worker keeps them offline.
 
 Pages must be set to **Settings → Pages → Build and deployment → Source: GitHub Actions**.
-The site is at `https://<owner>.github.io/<repository>/`; a repository named `<owner>.github.io`
-(Pisteday's own: `pisteday.github.io`) is served at the root, `https://<owner>.github.io/`. All of
+The site is at `https://<owner>.github.io/<repository>/`; a repository named `<owner>.github.io` is served at the
+root, `https://<owner>.github.io/`. Pisteday's repository `Pisteday/Pisteday` is at
+`https://pisteday.github.io/Pisteday/`; renamed to `pisteday.github.io` it moves to the root. All of
 the app's paths are relative (manifest, service worker, data), so either works unchanged.
 
 **On your phone:** open the site, then
@@ -566,7 +567,8 @@ for are not affected either way.
    add `MOLLIE_API_KEY=test_…` and `SEASON_PRICE=9.99` under Supabase → Edge Functions → Secrets
    (or `supabase secrets set …`), then switch the test phase off (above).
 5. Supabase → Authentication → URL Configuration: **Site URL** = the app's address
-   (`https://pisteday.github.io`), and under Redirect URLs `https://pisteday.github.io/**` (the
+   (`https://pisteday.github.io/Pisteday/`, or `https://pisteday.github.io` once the repository
+   is named `pisteday.github.io`), and under Redirect URLs `https://pisteday.github.io/**` (the
    links in the confirmation and password emails go back to the page they were asked from,
    `location.origin + location.pathname`). After a move, remove the old address there.
    Authentication → Emails: set up your own SMTP sender (Supabase's own is for testing only,
