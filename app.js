@@ -645,20 +645,40 @@ function renderHeaderLiftStatus() {
     : `Live lift status · ${liftStatusAge()}`);
 }
 
+// The area picker is a pop-up. Before an area is open it is all there is
+// (the tabs cannot be used yet); once one is open it opens over the screen
+// you are on, and closing it leaves that screen as it was.
 function showAreaPicker() {
-  leaveRouteMap();
   document.getElementById('area-search').value = '';
   renderAreaList();
-  clearAreaHeader();
-  showScreen('picker');
-  setNav(null);
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (!currentArea) {
+    leaveRouteMap();
+    clearAreaHeader();
+    showScreen('picker');
+    setNav(null);
+  } else {
+    document.getElementById(SCREENS.picker).style.display = 'block';
+  }
+  document.body.classList.add('picker-open');
+  document.getElementById('area-picker-close').hidden = !currentArea;
+  document.getElementById('area-picker').scrollTop = 0;
+}
+
+function closeAreaPicker() {
+  if (!currentArea) return; // nothing to go back to yet
+  document.getElementById(SCREENS.picker).style.display = 'none';
+  document.body.classList.remove('picker-open');
+  document.getElementById('area-first').style.display = 'none';
 }
 
 // Back from the area picker to the area that was open, as it was.
 function backToArea() {
-  if (currentArea) navTo(activeRoute && plannerHasRoute(activeRoute) ? 'route' : 'plan');
+  closeAreaPicker();
 }
+
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && document.body.classList.contains('picker-open')) closeAreaPicker();
+});
 
 // ── Navigation ───────────────────────────────────────────────────────────────
 //
@@ -681,6 +701,7 @@ const ACTIVE_KEY_PREFIX = 'skirouter:active:';
 let activeRoute = null; // 'quick' or 'day': the route Route and Map show
 
 function showScreen(name) {
+  document.body.classList.toggle('picker-open', name === 'picker');
   Object.entries(SCREENS).forEach(([key, id]) => { document.getElementById(id).style.display = key === name ? 'block' : 'none'; });
   document.getElementById('planner-cards').style.display = name === 'plan' || name === 'route' ? 'block' : 'none';
   // Route and Map: no Pisteday header, the route gets the whole screen
@@ -762,7 +783,7 @@ function askForAreaFirst(tab) {
 }
 
 function navTo(tab) {
-  if (!currentArea) return tab === 'account' ? openSettings() : askForAreaFirst(tab);
+  if (!currentArea) return; // the tabs wait for a ski area (the pop-up asks for one)
   const from = currentScreen();
   if (from === 'prefs') applyPrefsChanges();
   if (tab === 'account') {
@@ -2871,6 +2892,66 @@ function renderProgress(id, done, total, text, extraHtml = '') {
   `;
 }
 
+// ── Introduction ─────────────────────────────────────────────────────────────
+//
+// Five short cards on the basics, shown the first time the app opens (after
+// signing in, when accounts are on), with Skip on every card. Settings →
+// Introduction shows them again.
+
+const INTRO_SEEN_KEY = 'skirouter:intro-seen';
+const INTRO_STEPS = [
+  { icon: 'route', title: 'Welcome to Pisteday', text: 'Your ski day, planned: the lifts and pistes to take, in your colours and at your pace.' },
+  { icon: 'area', title: 'Choose your ski area', text: 'Every ski area in Europe. Once opened, it works offline on the mountain, without a signal.' },
+  { icon: 'flag', title: 'Plan', text: 'To a destination: pick where you are and where you want to go. Whole day: set your start, the km you want, lunch and stops, and pick one of a few routes.' },
+  { icon: 'map', title: 'Follow it', text: 'Route shows your steps one by one: tick them off as you go. Map shows where you are, with the step you are on highlighted. Closed lifts are flagged live.' },
+  { icon: 'settings', title: 'Make it yours', text: 'In Settings: piste colours, your pace, and lifts or pistes to avoid. Save a day with ★ to plan it again any time.' },
+];
+let introAt = 0;
+
+function maybeShowIntro() {
+  if (document.documentElement.classList.contains('gated')) return; // after signing in
+  let seen = false;
+  try { seen = localStorage.getItem(INTRO_SEEN_KEY) === '1'; } catch {}
+  if (!seen) showIntro();
+}
+
+function showIntro() {
+  introAt = 0;
+  renderIntro();
+  document.getElementById('intro').hidden = false;
+}
+
+function renderIntro() {
+  const step = INTRO_STEPS[introAt];
+  const last = introAt === INTRO_STEPS.length - 1;
+  document.getElementById('intro-ico').innerHTML = ui(step.icon);
+  document.getElementById('intro-title').textContent = step.title;
+  document.getElementById('intro-text').textContent = step.text;
+  document.getElementById('intro-dots').innerHTML = INTRO_STEPS.map((s, i) => `<span class="${i === introAt ? 'on' : ''}"></span>`).join('');
+  document.getElementById('intro-back').style.visibility = introAt ? '' : 'hidden';
+  document.getElementById('intro-next').textContent = last ? 'Get started' : 'Next';
+  document.querySelector('#intro .intro-skip').style.visibility = last ? 'hidden' : '';
+}
+
+function introStep(delta) {
+  const next = introAt + delta;
+  if (next >= INTRO_STEPS.length) return closeIntro();
+  introAt = Math.max(0, next);
+  renderIntro();
+}
+
+function closeIntro() {
+  document.getElementById('intro').hidden = true;
+  try { localStorage.setItem(INTRO_SEEN_KEY, '1'); } catch {}
+}
+
+document.addEventListener('keydown', event => {
+  if (document.getElementById('intro')?.hidden !== false) return;
+  if (event.key === 'Escape') closeIntro();
+  else if (event.key === 'ArrowRight') introStep(1);
+  else if (event.key === 'ArrowLeft') introStep(-1);
+});
+
 // ── Boot ─────────────────────────────────────────────────────────────────────
 
 showScreen('picker');
@@ -2879,6 +2960,7 @@ applyTheme();
 window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener?.('change', applyTheme);
 initAccount();
 initApp();
+maybeShowIntro(); // without accounts, or already signed in on this phone
 
 // Offline: the service worker keeps the app and all area data on the device.
 if ('serviceWorker' in navigator) {

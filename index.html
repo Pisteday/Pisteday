@@ -188,6 +188,11 @@
         <span class="settings-text"><strong>App settings</strong><small id="settings-app-sum"></small></span>
         <i data-i="right"></i>
       </button>
+      <button class="settings-item" type="button" onclick="showIntro()">
+        <span class="settings-ico"><i data-i="tip"></i></span>
+        <span class="settings-text"><strong>Introduction</strong><small>the basics in five steps</small></span>
+        <i data-i="right"></i>
+      </button>
       <a class="settings-item" href="guide/" target="_blank" rel="noopener">
         <span class="settings-ico"><i data-i="guide"></i></span>
         <span class="settings-text"><strong>Guide</strong><small>how Pisteday works, step by step</small></span>
@@ -227,9 +232,13 @@
     </div>
   </div>
 
-  <!-- Area picker: shown first, hidden once a gebied is chosen -->
-  <div class="card" id="area-picker">
-    <div class="card-title"><i data-i="area"></i> Choose a ski area</div>
+  <!-- Area picker: a pop-up over the app. Shown on start; once an area is
+       open it opens from the area's name and can be closed again. -->
+  <div class="picker-backdrop" id="picker-backdrop" onclick="closeAreaPicker()"></div>
+  <div class="card" id="area-picker" role="dialog" aria-modal="true" aria-labelledby="area-picker-title">
+    <div class="card-title area-picker-head"><i data-i="area"></i> <span id="area-picker-title">Choose a ski area</span>
+      <button class="area-picker-close" id="area-picker-close" type="button" onclick="closeAreaPicker()" aria-label="Close" hidden><i data-i="x"></i></button>
+    </div>
     <div class="area-first" id="area-first" role="status" style="display:none"><i data-i="warn"></i> <span id="area-first-text"></span></div>
     <form class="area-search-form" action="#" onsubmit="event.preventDefault(); document.getElementById('area-search').blur()">
       <input class="area-search" id="area-search" type="search" enterkeyhint="search" aria-label="Search ski areas"
@@ -627,6 +636,21 @@
 
 <!-- The app's main navigation, at the bottom like a native app: within
      reach of a thumb, also with gloves on -->
+<!-- The introduction: shown the first time, again from Settings -->
+<div class="intro" id="intro" role="dialog" aria-modal="true" aria-labelledby="intro-title" hidden>
+  <div class="intro-card">
+    <button class="intro-skip" type="button" onclick="closeIntro()">Skip</button>
+    <div class="intro-ico" id="intro-ico"></div>
+    <h2 class="intro-title" id="intro-title"></h2>
+    <p class="intro-text" id="intro-text"></p>
+    <div class="intro-dots" id="intro-dots" aria-hidden="true"></div>
+    <div class="intro-actions">
+      <button class="link-btn intro-back" id="intro-back" type="button" onclick="introStep(-1)">Back</button>
+      <button class="plan-btn intro-next" id="intro-next" type="button" onclick="introStep(1)">Next</button>
+    </div>
+  </div>
+</div>
+
 <nav class="tabbar" id="tabbar" aria-label="Main">
   <button class="tabbar-btn" id="nav-plan" type="button" onclick="navTo('plan')"><i data-i="route"></i><span>Plan</span></button>
   <button class="tabbar-btn" id="nav-route" type="button" onclick="navTo('route')"><i data-i="list"></i><span>Route</span></button>
