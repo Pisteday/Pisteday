@@ -1920,7 +1920,7 @@ function renderRoute(result) {
   lastQuickTitle = `${pointLabel(selected.from)} → ${pointLabel(selected.to)}`;
 
   const signature = [selected.from.id, ...visibleSteps.map(e => e.liftNr || e.pisteNr), selected.to.id].join('>');
-  makeCheckable(stepsEl, 'quick', signature, quickStatus, {
+  quickTracker = makeCheckable(stepsEl, 'quick', signature, quickStatus, {
     from: selected.from.id, to: selected.to.id, diff: [...allowedDiff], bus: busAllowed('pref-bus'), drag: dragAllowed('pref-drag'),
   });
   if (routeViews.quick === 'map') drawPlannerMap('quick');
@@ -1931,6 +1931,7 @@ function renderRoute(result) {
 let lastQuickPath = null; // the route on screen, for the map
 let lastQuickTitle = '';  // "from → to", for the menu above Route and Map
 let quickDone = 0;        // steps ticked, for the map's current step
+let quickTracker = null;  // the quick route's tickable steps
 
 // Each planner shows its route as a list or, from the Map tab, as a map
 // (routeViews, in map.js); the one map is drawn into the planner on screen.
@@ -1945,6 +1946,10 @@ function showRouteView(view, planner = 'quick') {
   setNav(view === 'map' ? 'map' : 'route');
   document.getElementById(ids.steps).style.display = view === 'map' ? 'none' : '';
   document.getElementById(ids.el).style.display = view === 'map' ? 'block' : 'none';
+  // The tick-off bar above the map, with the step you are at
+  const tracker = planner === 'quick' ? quickTracker : dayTracker;
+  if (tracker) renderMapStep(planner, tracker.done, tracker.items);
+  else document.getElementById(planner === 'quick' ? 'q-mapstep' : 'd-mapstep').hidden = true;
   if (view === 'map') {
     fitRouteMap(planner);
     drawPlannerMap(planner);
@@ -2043,6 +2048,7 @@ function mapFailed(err, el) {
 
 function quickStatus(done, items) {
   quickDone = done;
+  renderMapStep('quick', done, items);
   if (routeViews.quick === 'map') updateRouteMapProgress(done, 'quick');
   const left = items.slice(done).reduce((sum, item) => sum + (+item.dataset.min || 0), 0);
   const km = items.slice(done).reduce((sum, item) => sum + (+item.dataset.km || 0), 0);
@@ -2892,6 +2898,31 @@ function makeCheckable(container, kind, signature, onChange, extra = {}) {
     // Everything before step `n` done (the step menu's Replan from here).
     setDone(n) { done = Math.max(0, Math.min(n, items.length)); apply(true); },
   };
+}
+
+// On the map, above it: the step you are at, with ✓ to tick it off (the map
+// moves on to the next step) and ↶ to take the last tick back. The same
+// ticks as in the list.
+function renderMapStep(kind, done, items) {
+  const el = document.getElementById(kind === 'quick' ? 'q-mapstep' : 'd-mapstep');
+  if (!el) return;
+  el.hidden = routeViews[kind] !== 'map' || !items.length;
+  if (el.hidden) return;
+  const item = items[done];
+  const text = sel => item?.querySelector(sel)?.textContent.replace(/\s+/g, ' ').trim() || '';
+  const what = item ? [text('.lift-code') || text('.piste-sign'), text('.step-name')].filter(Boolean).join(' ') : '';
+  el.innerHTML = item
+    ? `<span class="map-step-text"><small>Step ${done + 1} of ${items.length}${text('.step-kind') ? ` · ${escapeHtml(text('.step-kind'))}` : ''}</small><strong>${escapeHtml(what || 'Next step')}</strong></span>`
+      + (done ? `<button type="button" class="map-step-undo" data-undo aria-label="Take back the last tick">${ui('replan')}</button>` : '')
+      + `<button type="button" class="step-check map-step-check" data-done aria-label="Done"></button>`
+    : `<span class="map-step-text"><strong>${kind === 'quick' ? 'Destination reached!' : 'Day done!'}</strong></span>`
+      + `<button type="button" class="map-step-undo" data-undo aria-label="Take back the last tick">${ui('replan')}</button>`;
+  // The same round tick as in the list: it fills in, then the next step comes
+  el.querySelector('[data-done]')?.addEventListener('click', event => {
+    event.currentTarget.classList.add('ticked');
+    setTimeout(() => items[done]?.click(), 220);
+  });
+  el.querySelector('[data-undo]')?.addEventListener('click', () => items[done - 1]?.click());
 }
 
 function renderProgress(id, done, total, text, extraHtml = '') {

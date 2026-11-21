@@ -1383,6 +1383,7 @@ let dayLateBuzzed = null; // the plan we already vibrated for
 // offer to replan the rest of the day.
 function dayStatus(done, items) {
   dayDone = done;
+  renderMapStep('day', done, items);
   if (routeViews.day === 'map') updateRouteMapProgress(done, 'day');
   const total = items.length;
   const walk  = dayOptions[dayShown];
