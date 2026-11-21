@@ -4747,3 +4747,167 @@ html.gated body.picker-open {
 html.gated .picker-backdrop {
   display: none !important;
 }
+
+/* ── Home screen: put Pisteday on the home screen first (phone or tablet in the browser) ── */
+.install-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 4000; /* above everything, the sign-in screen included */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background: linear-gradient(180deg, #081629 0%, #12305a 100%);
+  color: #fff;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: calc(env(safe-area-inset-top) + 28px) 16px calc(env(safe-area-inset-bottom) + 24px);
+}
+.install-screen[hidden] {
+  display: none;
+}
+html.installing body {
+  overflow: hidden;
+}
+.install-panel {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+}
+.install-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+}
+.install-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-weight: 400;
+  font-size: 34px;
+  line-height: 1;
+  letter-spacing: 0.5px;
+  margin: 4px 0 0;
+}
+.install-why {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 15px;
+  line-height: 1.45;
+}
+.install-how {
+  width: 100%;
+  background: #fff;
+  color: #0c1f3a;
+  border-radius: 18px;
+  padding: 18px;
+  text-align: left;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+.install-lead {
+  margin: 0 0 10px;
+  font-size: 15px;
+  line-height: 1.45;
+}
+.install-steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: install;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.install-steps li {
+  counter-increment: install;
+  position: relative;
+  padding-left: 38px;
+  font-size: 15px;
+  line-height: 1.45;
+  min-height: 26px;
+}
+.install-steps li::before {
+  content: counter(install);
+  position: absolute;
+  left: 0;
+  top: -1px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #1a5fd0;
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.install-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: #eaf1fb;
+  color: #1a5fd0;
+  vertical-align: middle;
+}
+.install-key .ui-icon {
+  width: 16px;
+  height: 16px;
+}
+.install-note {
+  margin: 12px 0 0;
+  font-size: 13px;
+  color: #5b6b80;
+  line-height: 1.4;
+}
+.install-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.install-copy {
+  margin-top: 12px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1.5px solid #1a5fd0;
+  background: #fff;
+  color: #1a5fd0;
+  font: inherit;
+  font-weight: 600;
+}
+.install-copy .ui-icon,
+.install-btn .ui-icon {
+  width: 18px;
+  height: 18px;
+}
+.install-done {
+  margin: 0;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-weight: 600;
+  color: #137a3a;
+}
+.install-browser {
+  margin-top: 6px;
+  background: none;
+  border: 0;
+  color: rgba(255, 255, 255, 0.7);
+  font: inherit;
+  font-size: 14px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: 10px;
+}
