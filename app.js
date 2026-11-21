@@ -2913,10 +2913,10 @@ function renderMapStep(kind, done, items) {
   const what = item ? [text('.lift-code') || text('.piste-sign'), text('.step-name')].filter(Boolean).join(' ') : '';
   el.innerHTML = item
     ? `<span class="map-step-text"><small>Step ${done + 1} of ${items.length}${text('.step-kind') ? ` · ${escapeHtml(text('.step-kind'))}` : ''}</small><strong>${escapeHtml(what || 'Next step')}</strong></span>`
-      + (done ? `<button type="button" class="map-step-undo" data-undo aria-label="Take back the last tick">${ui('back')}</button>` : '')
+      + (done ? `<button type="button" class="map-step-undo" data-undo aria-label="Take back the last tick">${ui('replan')}</button>` : '')
       + `<button type="button" class="map-step-done" data-done>${ui('check')} Done</button>`
     : `<span class="map-step-text"><strong>${kind === 'quick' ? 'Destination reached!' : 'Day done!'}</strong></span>`
-      + `<button type="button" class="map-step-undo" data-undo aria-label="Take back the last tick">${ui('back')}</button>`;
+      + `<button type="button" class="map-step-undo" data-undo aria-label="Take back the last tick">${ui('replan')}</button>`;
   el.querySelector('[data-done]')?.addEventListener('click', () => items[done]?.click());
   el.querySelector('[data-undo]')?.addEventListener('click', () => items[done - 1]?.click());
 }
