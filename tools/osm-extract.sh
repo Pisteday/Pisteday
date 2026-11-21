@@ -12,7 +12,7 @@
 set -euo pipefail
 OUT=${1:?usage: tools/osm-extract.sh OUT.geojsonseq [AREAS_DIR]}
 AREAS=${2:-build/europe/areas}
-UA='SkiRouter/1.0 (github.com/WillemvanOs/SkiRouter)'
+UA='Pisteday/1.0 (+https://pisteday.github.io/)'
 FILTERS=(
   nwr/amenity=restaurant,cafe,fast_food,bar,pub,biergarten
   nwr/tourism=alpine_hut,viewpoint

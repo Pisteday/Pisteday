@@ -13,7 +13,7 @@
 
 import * as cheerio from 'cheerio';
 
-const UA = 'Mozilla/5.0 (compatible; SkiRouter/1.0; +https://github.com/WillemvanOs/SkiRouter)';
+const UA = 'Mozilla/5.0 (compatible; Pisteday/1.0; +https://pisteday.github.io/)';
 
 export async function get(url, { timeout = 20000, json = false } = {}) {
   try {

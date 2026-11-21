@@ -1,4 +1,4 @@
-# Set up or update SkiRouter's accounts backend on Supabase, from GitHub,
+# Set up or update Pisteday's accounts backend on Supabase, from GitHub,
 # without installing anything locally: the tables (supabase/migrations/)
 # and the Edge Functions (supabase/functions/). Run it by hand (Actions →
 # Supabase → Run workflow) after creating the project, and again whenever
@@ -24,10 +24,21 @@ jobs:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
       PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
-      # The app's address: CORS for the functions, and where Mollie sends people back
-      APP_URL: https://willemvanos.github.io/SkiRouter
+      # The app's address: CORS for the functions, and where Mollie sends people back.
+      # A repository variable APP_URL (a custom domain, say) wins; else the
+      # GitHub Pages address of this repository (see the step below).
+      APP_URL: ${{ vars.APP_URL }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: The app's address
+        if: env.APP_URL == ''
+        # owner.github.io is served at the root; any other repository under /<name>
+        run: |
+          owner="${GITHUB_REPOSITORY_OWNER,,}"; name="${GITHUB_REPOSITORY#*/}"
+          if [ "${name,,}" = "$owner.github.io" ]; then url="https://$owner.github.io"; else url="https://$owner.github.io/$name"; fi
+          echo "APP_URL=$url" >> "$GITHUB_ENV"
+          echo "App address: $url"
 
       - name: Check the secrets
         run: |

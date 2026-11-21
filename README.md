@@ -49,7 +49,9 @@ served from the site itself (`vendor/fonts/`, from Fontsource), not from Google 
 opening the app sends nobody's IP address to Google; the service worker keeps them offline.
 
 Pages must be set to **Settings → Pages → Build and deployment → Source: GitHub Actions**.
-The site is at `https://<your-username>.github.io/<repository>/`.
+The site is at `https://<owner>.github.io/<repository>/`; a repository named `<owner>.github.io`
+(Pisteday's own: `pisteday.github.io`) is served at the root, `https://<owner>.github.io/`. All of
+the app's paths are relative (manifest, service worker, data), so either works unchanged.
 
 **On your phone:** open the site, then
 - iPhone (Safari): Share → **Add to Home Screen**
@@ -553,7 +555,9 @@ for are not affected either way.
    `SUPABASE_ACCESS_TOKEN` (supabase.com → Account → Access tokens), `SUPABASE_PROJECT_REF`
    (the `<ref>` in `https://<ref>.supabase.co`) and `SUPABASE_DB_PASSWORD`.
 3. Run **Actions → Supabase → Run workflow** (`.github/workflows/supabase.yml`): it makes the
-   tables (`supabase db push`), sets `APP_URL` and deploys the three Edge Functions. Run it
+   tables (`supabase db push`), sets `APP_URL` (the repository's GitHub Pages address, e.g.
+   `https://pisteday.github.io`; a repository variable `APP_URL` overrides it, for a custom
+   domain) and deploys the three Edge Functions. Run it
    again whenever something under `supabase/` changes. (With the
    [Supabase CLI](https://supabase.com/docs/guides/cli) installed locally, the same steps by hand:
    `supabase link --project-ref <ref>`, `supabase db push`, `supabase functions deploy …`.)
@@ -561,8 +565,10 @@ for are not affected either way.
    key `test_…` first, live key `live_…` once Mollie has approved you). Then:
    add `MOLLIE_API_KEY=test_…` and `SEASON_PRICE=9.99` under Supabase → Edge Functions → Secrets
    (or `supabase secrets set …`), then switch the test phase off (above).
-5. Supabase → Authentication → URL Configuration: **Site URL** = the app's address, and add it
-   under Redirect URLs (the links in the confirmation and password emails go there).
+5. Supabase → Authentication → URL Configuration: **Site URL** = the app's address
+   (`https://pisteday.github.io`), and under Redirect URLs `https://pisteday.github.io/**` (the
+   links in the confirmation and password emails go back to the page they were asked from,
+   `location.origin + location.pathname`). After a move, remove the old address there.
    Authentication → Emails: set up your own SMTP sender (Supabase's own is for testing only,
    a few emails an hour) and the email texts. For a small test group without your own SMTP:
    Authentication → Sign In / Providers → Email → turn off **Confirm email**; sign-up then signs

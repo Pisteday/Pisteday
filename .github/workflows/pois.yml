@@ -5,7 +5,7 @@
 # commit them when they changed.
 #
 # The extract (tools/osm-extract.sh) holds the Geofabrik regions with ski
-# areas, cut down with osmium to what SkiRouter uses. It is made once a week
+# areas, cut down with osmium to what Pisteday uses. It is made once a week
 # and kept in the Actions cache in between, so Geofabrik is asked once a
 # week and the public Overpass API not at all (it asks commercial users to
 # run their own). On main the site is then redeployed, so the areas built at

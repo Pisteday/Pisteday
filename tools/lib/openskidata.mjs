@@ -12,7 +12,7 @@ import { createGunzip } from 'node:zlib';
 import { pipeline } from 'node:stream/promises';
 import { Readable } from 'node:stream';
 
-const UA = 'SkiRouter/1.0 (github.com/WillemvanOs/SkiRouter)';
+const UA = 'Pisteday/1.0 (+https://pisteday.github.io/)';
 export const OSD_BASE = process.env.OSD_BASE || 'https://tiles.openskimap.org/geojson';
 
 // Download name.geojson into dir, unless a fresh copy is there already.
