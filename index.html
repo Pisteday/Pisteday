@@ -227,9 +227,13 @@
     </div>
   </div>
 
-  <!-- Area picker: shown first, hidden once a gebied is chosen -->
-  <div class="card" id="area-picker">
-    <div class="card-title"><i data-i="area"></i> Choose a ski area</div>
+  <!-- Area picker: a pop-up over the app. Shown on start; once an area is
+       open it opens from the area's name and can be closed again. -->
+  <div class="picker-backdrop" id="picker-backdrop" onclick="closeAreaPicker()"></div>
+  <div class="card" id="area-picker" role="dialog" aria-modal="true" aria-labelledby="area-picker-title">
+    <div class="card-title area-picker-head"><i data-i="area"></i> <span id="area-picker-title">Choose a ski area</span>
+      <button class="area-picker-close" id="area-picker-close" type="button" onclick="closeAreaPicker()" aria-label="Close" hidden><i data-i="x"></i></button>
+    </div>
     <div class="area-first" id="area-first" role="status" style="display:none"><i data-i="warn"></i> <span id="area-first-text"></span></div>
     <form class="area-search-form" action="#" onsubmit="event.preventDefault(); document.getElementById('area-search').blur()">
       <input class="area-search" id="area-search" type="search" enterkeyhint="search" aria-label="Search ski areas"

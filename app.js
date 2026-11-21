@@ -645,20 +645,40 @@ function renderHeaderLiftStatus() {
     : `Live lift status · ${liftStatusAge()}`);
 }
 
+// The area picker is a pop-up. Before an area is open it is all there is
+// (the tabs cannot be used yet); once one is open it opens over the screen
+// you are on, and closing it leaves that screen as it was.
 function showAreaPicker() {
-  leaveRouteMap();
   document.getElementById('area-search').value = '';
   renderAreaList();
-  clearAreaHeader();
-  showScreen('picker');
-  setNav(null);
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (!currentArea) {
+    leaveRouteMap();
+    clearAreaHeader();
+    showScreen('picker');
+    setNav(null);
+  } else {
+    document.getElementById(SCREENS.picker).style.display = 'block';
+  }
+  document.body.classList.add('picker-open');
+  document.getElementById('area-picker-close').hidden = !currentArea;
+  document.getElementById('area-picker').scrollTop = 0;
+}
+
+function closeAreaPicker() {
+  if (!currentArea) return; // nothing to go back to yet
+  document.getElementById(SCREENS.picker).style.display = 'none';
+  document.body.classList.remove('picker-open');
+  document.getElementById('area-first').style.display = 'none';
 }
 
 // Back from the area picker to the area that was open, as it was.
 function backToArea() {
-  if (currentArea) navTo(activeRoute && plannerHasRoute(activeRoute) ? 'route' : 'plan');
+  closeAreaPicker();
 }
+
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && document.body.classList.contains('picker-open')) closeAreaPicker();
+});
 
 // ── Navigation ───────────────────────────────────────────────────────────────
 //
@@ -681,6 +701,7 @@ const ACTIVE_KEY_PREFIX = 'skirouter:active:';
 let activeRoute = null; // 'quick' or 'day': the route Route and Map show
 
 function showScreen(name) {
+  document.body.classList.toggle('picker-open', name === 'picker');
   Object.entries(SCREENS).forEach(([key, id]) => { document.getElementById(id).style.display = key === name ? 'block' : 'none'; });
   document.getElementById('planner-cards').style.display = name === 'plan' || name === 'route' ? 'block' : 'none';
   // Route and Map: no Pisteday header, the route gets the whole screen
@@ -762,7 +783,7 @@ function askForAreaFirst(tab) {
 }
 
 function navTo(tab) {
-  if (!currentArea) return tab === 'account' ? openSettings() : askForAreaFirst(tab);
+  if (!currentArea) return; // the tabs wait for a ski area (the pop-up asks for one)
   const from = currentScreen();
   if (from === 'prefs') applyPrefsChanges();
   if (tab === 'account') {
