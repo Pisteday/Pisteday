@@ -26,7 +26,7 @@ exists (`tools/check-shell.mjs`; one missing file would stop the app from updati
 ## Published site (GitHub Pages)
 
 Only the planner files go online: `index.html`, `config.js`, `account.js`, `icons.js`, `liftmatch.js`, `map.js`, `dayplan.js`,
-`app.js`, `styles.css`, `sw.js`, `manifest.webmanifest`, `privacy.html`, `terms.html`, `legal.css`, `icons/`, `vendor/`, `about/`, `guide/` and `data/`.
+`app.js`, `styles.css`, `sw.js`, `manifest.webmanifest`, `privacy.html`, `terms.html`, `legal.css`, `icons/`, `vendor/`, `about/` and `data/`.
 
 **The landing page** is `about/` (on the site: `…/about/`). The app's own scope (`manifest.webmanifest`:
 `scope` and `start_url` `./index.html`, `id` `./` so installed apps stay the same app) covers only
@@ -36,12 +36,7 @@ free versus the season pass, how to put it on the home screen (iPhone, Android, 
 steps for the device you visit with open first), and questions. The app links to it from the
 area picker and Settings.
 
-**The guide** is a page of its own, `guide/` (on the site: `…/guide/`), visited from the app only
-(**Settings → Guide**), not linked from the landing page. It opens in its own browser tab next to the app, so it has no "Back to the app" link: close the tab to return. It explains every feature with
-screenshots (`guide/img/`): getting started, the tabs, planning a route and a day, picking places,
-following it, the map, switching routes and saved routes, lift status, avoiding, preferences,
-settings, the account and season pass, offline use, the data. It uses the landing page's
-stylesheet (`about/about.css`) plus `guide/guide.css`. Update both pages when the app changes. The screenshots in `about/img/` are of the app itself;
+The screenshots in `about/img/` are of the app itself;
 make new ones when the look changes.
 
 The typefaces (Bebas Neue and DM Sans, SIL Open Font License, `vendor/fonts/OFL.txt`) are
@@ -246,8 +241,8 @@ says so.
   your **account** first (with accounts on: email, season pass, saved routes); **Planning**:
   **Route preferences** (colours, pace, drag lifts, ski bus, avoided lifts and pistes; the
   **Route preferences** line in the Plan tab opens the same screen, with **Back to planning**)
-  and **Ski area**; **App**: **App settings** (appearance, terms, privacy, credits), **Guide**
-  (`guide/`) and **About Pisteday** (the landing page); both open in the browser. Each line says what is set, e.g. "Blue, Red · sporty pace".
+  and **Ski area**; **App**: **App settings** (appearance, terms, privacy, credits), **Tour** and
+  **About Pisteday** (the landing page, in the browser). Each line says what is set, e.g. "Blue, Red · sporty pace".
 
 Route and Map always show the same route, the active one. The bar at their top says which, and
 opens a menu: **Recent** (the last route to a destination and the last day, so a quick detour
