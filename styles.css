@@ -4341,3 +4341,44 @@ body.no-header main {
 .paywall .prefs-label {
   margin: 0 0 8px;
 }
+
+/* While SkiRouter is being tested: Free and Premium shown, not yet to choose */
+.gate-plan.is-unavailable {
+  position: relative;
+  cursor: default;
+  opacity: 0.6;
+}
+
+.gate-plan.is-unavailable::after {
+  content: 'Not available yet';
+  position: absolute;
+  top: -8px;
+  right: 10px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--bg-e5e5e5);
+  color: var(--fg-4a5d72);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.gate-plan-test {
+  border-color: var(--accent);
+  background: var(--bg-ffffff);
+}
+
+.gate-plan-test[hidden] {
+  display: none;
+}
+
+.gate-plan-note {
+  font-size: 0.8rem;
+  color: var(--fg-4a5d72);
+}
+
+.gate-plans.is-testing legend::after {
+  content: ' · only the test version for now';
+  font-weight: 400;
+}
