@@ -660,15 +660,27 @@ function styleRoute() {
     const colour = state === 'done' ? MAP_DONE_COLOUR
       : lift ? MAP_LIFT_COLOUR
       : piece.edge.pisteNr ? pisteColourOf(piece.edge.pisteNr) : MAP_LINK_COLOUR;
-    const weight = state === 'done' ? (lift ? 2.5 : 4) : state === 'focus' ? (lift ? 4 : 7) : (lift ? 3 : 5);
-    const opacity = state === 'later' ? 0.55 : state === 'done' ? 0.7 : 1;
+    // Only the step you are at stands out: thick and on top. The next steps
+    // are thinner, later ones thin and faint, so there is never doubt about
+    // which piste to take now.
+    const current = piece.step === routeMapDone;
+    const weight = current ? (lift ? 5 : 9)
+      : state === 'done' ? (lift ? 2 : 3)
+      : state === 'focus' ? (lift ? 3 : 4)
+      : (lift ? 2 : 3);
+    const opacity = current ? 1 : state === 'focus' ? 0.75 : state === 'later' ? 0.4 : 0.6;
     if (piece.gap) {
       piece.line.setStyle({ color: state === 'done' ? MAP_DONE_COLOUR : MAP_LINK_COLOUR, weight: 3, opacity: 0.9 * opacity, dashArray: '2 6' });
     } else {
-      piece.casing.setStyle({ weight: weight + (lift ? 4 : 5), opacity: state === 'done' ? 0 : 0.95 * opacity });
+      piece.casing.setStyle({ weight: weight + (current ? (lift ? 4 : 6) : 3), opacity: state === 'done' ? 0 : 0.95 * opacity });
       piece.line.setStyle({ color: colour, weight, opacity, dashArray: piece.kind === 'link' ? '6 8' : null });
     }
     (piece.dots || []).forEach(d => d.setStyle({ color: state === 'done' ? MAP_DONE_COLOUR : MAP_LIFT_COLOUR, opacity, fillOpacity: opacity }));
+  });
+  // The step you are at above the others, where lines cross
+  routeMapPieces.filter(piece => piece.step === routeMapDone && piece.line && !piece.gap).forEach(piece => {
+    piece.casing?.bringToFront();
+    piece.line.bringToFront();
   });
   routeMapPieces.forEach(piece => {
     const tag = piece.label?.getElement()?.querySelector('.map-tag');

@@ -333,6 +333,8 @@ data on a light background, so it works offline and is easy to read.
   as that piste (`startOnPisteAtLift`). A stretch with no number and no name in the map data
   ("Black run", kept as `~n`) has no sign on the mountain, so it counts towards the piste before
   it, or at the very start the one after it (`foldUnnamedParts`).
+- **Only the step you are at stands out.** Its line is thick and drawn on top of the others; the
+  next three steps are thinner, later steps thin and faint, done steps grey (`styleRoute`).
 - **It follows you.** The map opens on the step you are at (its label yellow) and the next three,
   in full colour; the rest of the route is lighter and the steps done are grey. Tick a step and
   the map moves on. **⤢ Whole route** shows all of it, **◎ My step** goes back.
