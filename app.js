@@ -2985,6 +2985,8 @@ function showIntro() {
   document.getElementById('intro').hidden = false;
   document.body.classList.add('touring');
   renderIntro();
+  cancelAnimationFrame(tourFrame);
+  tourLoop();
 }
 
 // The first of a step's targets that is on screen now.
@@ -3009,53 +3011,79 @@ function renderIntro() {
     return renderIntro();
   }
   const last = introAt === INTRO_STEPS.length - 1;
-  const doing = step.tap || step.until; // the app's own button moves the tour on
+  // The app's own button moves the tour on; if that button is not on screen,
+  // Next does, so the tour can never get stuck
+  const doing = (step.tap && tourTarget(step)) || step.until;
   document.getElementById('intro-title').textContent = step.title;
   document.getElementById('intro-text').textContent = step.text;
-  document.getElementById('intro-dots').innerHTML = INTRO_STEPS.map((s, i) => `<span class="${i === introAt ? 'on' : ''}"></span>`).join('');
+  document.getElementById('intro-dots').textContent = `${introAt + 1} / ${INTRO_STEPS.length}`;
+  // The area picker makes room at the top for the note while it is lit up
+  document.body.classList.toggle('tour-room-top', (step.target || [])[0] === '#area-picker');
   document.getElementById('intro-back').style.display = 'none';
   document.getElementById('intro-next').style.display = doing ? 'none' : '';
   document.getElementById('intro-next').textContent = last ? 'Get started' : 'Next';
   document.querySelector('#intro .tour-skip').style.visibility = last ? 'hidden' : '';
   document.getElementById('intro').classList.toggle('is-doing', !!doing);
   if (step.until) introWait = setInterval(() => { if (step.until()) introStep(1); }, 300);
-  setTimeout(placeTour, 60); // after the screen has opened
+  tourLast = '';
+  // Bring the part into view once the screen has opened (the frame loop then follows it)
+  setTimeout(() => { const t = tourTarget(step); if (t && !step.until && !step.tap) t.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 80);
 }
 
 // Light up the target and put the note next to it, its arrow on the target.
+// Runs every frame while the tour is open, so the light follows the screen
+// as it settles (a pop-up sliding in, the keyboard, scrolling, a rotation);
+// it only touches the page when something has moved.
+let tourFrame = 0, tourLast = '';
+function tourLoop() {
+  placeTour();
+  tourFrame = requestAnimationFrame(tourLoop);
+}
+
 function placeTour() {
   const tour = document.getElementById('intro');
   if (tour.hidden) return;
   const step = INTRO_STEPS[introAt];
   const hole = document.getElementById('tour-hole'), bubble = document.getElementById('tour-bubble'), arrow = document.getElementById('tour-arrow');
   const target = tourTarget(step);
-  if (target && !step.until) target.scrollIntoView({ block: 'nearest' });
-  const vw = window.innerWidth, vh = window.innerHeight, pad = 6, gap = 14;
-  if (!target) {
+  const vv = window.visualViewport;
+  const vw = vv?.width || window.innerWidth, vh = vv?.height || window.innerHeight;
+  const r = target?.getBoundingClientRect();
+  const bh = bubble.offsetHeight;
+  document.body.style.setProperty('--tour-room', `${bh + 40}px`); // room the area picker leaves for the note
+  const key = [introAt, vw, vh, bh, r && [r.left, r.top, r.width, r.height].map(Math.round).join()].join('|');
+  if (key === tourLast) return;
+  tourLast = key;
+
+  const margin = 12, gap = 14;
+  let pad = 6;
+  const bw = Math.min(360, vw - margin * 2);
+  if (!r) {
+    // No target (welcome): the note in the middle, the whole app dimmed
     hole.style.cssText = `left:${vw / 2}px;top:${vh / 2}px;width:0;height:0`;
-    bubble.style.cssText = `left:50%;top:50%;transform:translate(-50%,-50%)`;
+    bubble.style.cssText = `left:${(vw - bw) / 2}px;width:${bw}px;top:${Math.max(margin, (vh - bh) / 2)}px`;
     arrow.style.display = 'none';
     return;
   }
-  const r = target.getBoundingClientRect();
-  // A large part (the area picker, the map): the note sits over its lower edge
-  const big = r.height > vh * 0.45;
-  hole.style.cssText = `left:${r.left - pad}px;top:${r.top - pad}px;width:${r.width + pad * 2}px;height:${r.height + pad * 2}px`;
-  const bw = Math.min(340, vw - 24);
-  const left = Math.max(12, Math.min(vw - bw - 12, r.left + r.width / 2 - bw / 2));
-  if (big) {
-    bubble.style.cssText = `left:${left}px;width:${bw}px;bottom:${Math.max(12, vh - r.bottom + 12)}px`;
-    arrow.style.display = 'none';
-    return;
-  }
-  const below = r.top + r.height / 2 < vh / 2;
-  bubble.style.cssText = `left:${left}px;width:${bw}px;` + (below ? `top:${r.bottom + pad + gap}px` : `bottom:${vh - r.top + pad + gap}px`);
-  arrow.style.display = '';
-  arrow.className = `tour-arrow ${below ? 'up' : 'down'}`;
+  const radius = parseFloat(getComputedStyle(target).borderRadius) || 10;
+  const tight = r.height > vh * 0.45; // a large part (the area picker, the map): a snug frame
+  if (tight) pad = 2;
+  hole.style.cssText = `left:${r.left - pad}px;top:${r.top - pad}px;width:${r.width + pad * 2}px;height:${r.height + pad * 2}px;border-radius:${radius + pad}px`;
+  const left = Math.max(margin, Math.min(vw - bw - margin, r.left + r.width / 2 - bw / 2));
+  const top = vv?.offsetTop || 0;
+  // Above or below the target, wherever the note fits without covering it;
+  // a target too tall for either (the map) gets the note inside its lower
+  // part, so its buttons at the top stay in view.
+  const roomAbove = r.top - pad - gap - margin - top, roomBelow = vh + top - r.bottom - pad - gap - margin;
+  let y, dir;
+  if (roomBelow >= bh && (roomBelow >= roomAbove || roomAbove < bh)) { y = r.bottom + pad + gap; dir = 'up'; }
+  else if (roomAbove >= bh) { y = r.top - pad - gap - bh; dir = 'down'; }
+  else { y = Math.max(top + margin, Math.min(r.bottom, vh + top) - bh - margin); dir = ''; }
+  bubble.style.cssText = `left:${left}px;width:${bw}px;top:${y}px`;
+  arrow.style.display = dir ? '' : 'none';
+  arrow.className = `tour-arrow ${dir}`;
   arrow.style.left = `${Math.max(18, Math.min(bw - 18, r.left + r.width / 2 - left))}px`;
 }
-window.addEventListener('resize', placeTour);
-window.addEventListener('scroll', () => placeTour(), { passive: true, capture: true });
 
 // During the tour only the tour's own note and the lit-up control respond.
 // A tap on the control asked for moves the tour on, once the app has
@@ -3084,6 +3112,8 @@ function introStep(delta) {
 
 function closeIntro() {
   clearInterval(introWait);
+  cancelAnimationFrame(tourFrame);
+  document.body.classList.remove('tour-room-top');
   document.getElementById('intro').hidden = true;
   document.body.classList.remove('touring');
   try { localStorage.setItem(INTRO_SEEN_KEY, '1'); } catch {}
