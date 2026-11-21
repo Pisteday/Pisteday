@@ -347,7 +347,7 @@ data on a light background, so it works offline and is easy to read.
 - **Only the step you are at stands out.** Its line is thick and drawn on top of the others; the
   next three steps are thinner, later steps thin and faint, done steps grey (`styleRoute`).
 - **Tick off from the map.** Above the map the step you are at is named (number, kind, lift or
-  piste); **✓ Done** ticks it and the map moves on to the next step, **↺** takes the last tick
+  piste); the round tick (as in the list) ticks it and the map moves on to the next step, **↺** takes the last tick
   back. The same ticks as in the list (`renderMapStep`).
 - **It follows you.** The map opens on the step you are at (its label yellow) and the next three,
   in full colour; the rest of the route is lighter and the steps done are grey. Tick a step and

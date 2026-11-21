@@ -2914,10 +2914,14 @@ function renderMapStep(kind, done, items) {
   el.innerHTML = item
     ? `<span class="map-step-text"><small>Step ${done + 1} of ${items.length}${text('.step-kind') ? ` · ${escapeHtml(text('.step-kind'))}` : ''}</small><strong>${escapeHtml(what || 'Next step')}</strong></span>`
       + (done ? `<button type="button" class="map-step-undo" data-undo aria-label="Take back the last tick">${ui('replan')}</button>` : '')
-      + `<button type="button" class="map-step-done" data-done>${ui('check')} Done</button>`
+      + `<button type="button" class="step-check map-step-check" data-done aria-label="Done"></button>`
     : `<span class="map-step-text"><strong>${kind === 'quick' ? 'Destination reached!' : 'Day done!'}</strong></span>`
       + `<button type="button" class="map-step-undo" data-undo aria-label="Take back the last tick">${ui('replan')}</button>`;
-  el.querySelector('[data-done]')?.addEventListener('click', () => items[done]?.click());
+  // The same round tick as in the list: it fills in, then the next step comes
+  el.querySelector('[data-done]')?.addEventListener('click', event => {
+    event.currentTarget.classList.add('ticked');
+    setTimeout(() => items[done]?.click(), 220);
+  });
   el.querySelector('[data-undo]')?.addEventListener('click', () => items[done - 1]?.click());
 }
 
