@@ -1,4 +1,4 @@
-// Where SkiRouter's accounts live (see README: Accounts). Both values are
+// Where Pisteday's accounts live (see README: Accounts). Both values are
 // public by design: the anon key only allows what the database's row level
 // security allows. Left empty, the app runs without accounts and everything
 // is free (as before accounts existed).

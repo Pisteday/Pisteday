@@ -121,7 +121,7 @@ function renderGate(mode, message = '') {
     el.querySelectorAll('input, select').forEach(input => { input.disabled = el.style.display === 'none'; });
   });
   // Free or Premium is only a choice while payments are on
-  // While SkiRouter is being tested, Free and Premium are shown with their
+  // While Pisteday is being tested, Free and Premium are shown with their
   // price but cannot be chosen: only the test version can.
   const plans = document.getElementById('gate-plans');
   const testing = !paymentsOn;
@@ -182,7 +182,7 @@ async function gateSubmit(event) {
       const country = document.getElementById('gate-country').dataset.code || null; // only one picked from the list
       if (password.length < 8) return fail('Choose a password of at least 8 characters.');
       if (!birthdate) return fail('Enter your date of birth as day-month-year, e.g. 18-08-1995.');
-      if (ageOn(birthdate) < MIN_AGE) return fail(`SkiRouter accounts are for ${MIN_AGE} and over.`);
+      if (ageOn(birthdate) < MIN_AGE) return fail(`Pisteday accounts are for ${MIN_AGE} and over.`);
       if (ageOn(birthdate) > 120) return fail('Check your date of birth.');
       if (!country) return fail('Choose your country from the list.');
       if (!document.getElementById('gate-terms').checked) return fail('Agree to the terms and the privacy policy to create an account.');
@@ -773,7 +773,7 @@ function renderAccount() {
 
   const paid = hasSeasonPass();
   document.getElementById('acc-pass').innerHTML = !paymentsOn
-    ? `<strong>${ui('done')} Test phase</strong><span>Everything is free while SkiRouter is being tested: the day planner and saving your days included. Nothing to pay.</span>`
+    ? `<strong>${ui('done')} Test phase</strong><span>Everything is free while Pisteday is being tested: the day planner and saving your days included. Nothing to pay.</span>`
     : paid
     ? `<strong>${ui('done')} Premium account</strong><span>Day planner and saved routes until ${escapeHtml(formatDay(new Date(new Date(account.paid_until) - 1)))}</span>`
     : `<strong>Free account</strong><span>Premium is €${escapeHtml(accountCfg.seasonPrice || '9.99')} for the ${seasonLabel()} season: one payment, no subscription. It adds:</span>`;
