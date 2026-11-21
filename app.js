@@ -2984,7 +2984,8 @@ const INTRO_STEPS = [
       openSheet('from');
       if (sheetView !== 'list') { sheetView = 'list'; showSheetView(); }
     } },
-  { target: ['#sheet'], title: 'Or on the map', text: 'Map shows every lift on the piste map. Tap a lift: its card shows, and Start here picks it.',
+  { target: ['#sheet-view-btn'], title: 'Choose on the map', text: 'Rather look on the map? Tap Map here: the list makes way for the piste map.' },
+  { target: ['#sheet'], title: 'Or on the map', text: 'The piste map shows every lift. Tap a lift: its card shows, and Start here picks it.',
     enter: () => {
       if (document.getElementById('sheet').style.display === 'none') return;
       sheetView = 'map';
@@ -3204,8 +3205,8 @@ async function renderIntro() {
   document.getElementById('intro-title').textContent = text(step.title);
   document.getElementById('intro-text').textContent = text(step.text);
   document.getElementById('intro-dots').textContent = `${introAt + 1} / ${INTRO_STEPS.length}`;
-  // The area picker and the station list make room at the top for the note
-  document.body.classList.toggle('tour-room-top', ['#area-picker', '#sheet'].includes((step.target || [])[0]));
+  // The area picker and the station list (and its Map button) make room at the top for the note
+  document.body.classList.toggle('tour-room-top', ['#area-picker', '#sheet', '#sheet-view-btn'].includes((step.target || [])[0]));
   document.getElementById('intro-back').style.display = 'none';
   document.getElementById('intro-next').textContent = last ? 'Done' : 'Next';
   document.querySelector('#intro .tour-skip').style.visibility = last ? 'hidden' : '';

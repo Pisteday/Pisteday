@@ -142,7 +142,7 @@ report lists every part and what became of it.
 
 The first time the app opens (after signing in, when accounts are on) a **tour** demonstrates the
 app with an example route; you only tap Next. The tour does everything itself: it shows the area
-picker, plans a route (it opens the station list, switches it to the map and taps a lift there, so
+picker, plans a route (it opens the station list, lights up its Map button, switches it to the map and taps a lift there, so
 its card shows with Start here, fills in a start and destination it picked so the route has a
 few steps, and calculates it), ticks off a step in the list and one above the map,
 shows Whole day and its fields, closes the route to show recent and saved routes, and ends in
