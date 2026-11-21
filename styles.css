@@ -4610,3 +4610,76 @@ body.touring .tabbar-btn {
 body:not(.on-plan) #area-switch-btn {
   display: none !important;
 }
+
+/* On the map: the step you are at, to tick off from there */
+.map-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 8px 8px 8px 12px;
+  border-radius: 12px;
+  background: var(--snow);
+  border: 1.5px solid var(--ice);
+}
+
+.map-step[hidden] {
+  display: none;
+}
+
+.map-step-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.map-step-text small {
+  font-size: 0.72rem;
+  color: var(--fg-6a7d92);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.map-step-text strong {
+  font-size: 0.95rem;
+  color: var(--midnight);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.map-step-undo {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1.5px solid var(--ice);
+  border-radius: 10px;
+  background: var(--bg-ffffff);
+  color: var(--midnight);
+  cursor: pointer;
+}
+
+.map-step-done {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 10px;
+  background: #1e8449; /* the green of a ticked step, in every theme */
+  color: #fff;
+  font: 700 0.9rem 'DM Sans', sans-serif;
+  cursor: pointer;
+}
+
+.map-step-undo .ui-icon,
+.map-step-done .ui-icon {
+  width: 18px;
+  height: 18px;
+}
