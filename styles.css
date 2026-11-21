@@ -4729,3 +4729,14 @@ body.tour-room-top.picker-open #area-picker {
 body.touring .area-picker-close {
   display: none;
 }
+
+/* The tour stays on top of the save sheet a step opens, framing its panel. */
+body.touring #route-save-menu {
+  z-index: 2090;
+}
+
+/* Choosing a start or destination in the tour: the sheet leaves room for the note above it. */
+body.tour-room-top .sheet {
+  height: calc(100dvh - env(safe-area-inset-top) - var(--tour-room, 170px));
+  padding-bottom: calc(64px + env(safe-area-inset-bottom)); /* the tab bar stays on top in the tour */
+}

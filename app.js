@@ -2952,26 +2952,56 @@ function renderProgress(id, done, total, text, extraHtml = '') {
 
 const INTRO_SEEN_KEY = 'skirouter:intro-seen';
 const INTRO_STEPS = [
-  { title: 'Welcome to Pisteday', text: 'A short tour. Follow the lit-up steps: you tap the buttons yourself.' },
+  { title: 'Welcome to Pisteday', text: 'Let us plan a first route together. Follow the lit-up steps: you tap and choose yourself.' },
+  // Ski area
   { target: ['#area-picker'], title: 'Choose a ski area', text: 'Search for a ski area, village or region, or open a country, and tap your ski area.',
     enter: () => showAreaPicker(),
     until: () => !!currentArea && !document.body.classList.contains('picker-open') },
+  // A route to a destination, done for real
   { target: ['#nav-plan'], tap: true, title: 'Plan', text: 'Tap Plan.' },
-  { target: ['.plan-mode'], title: 'Two ways to plan', text: 'To a destination: from where you are to one lift or place. Whole day: a full ski day, planned for you.',
-    enter: () => setPlanMode('quick') },
-  { target: ['#from-box'], title: 'Where you are', text: 'Pick the lift or place where you start. A tap on the map works too.' },
-  { target: ['#to-box'], title: 'Where you want to go', text: 'Then pick where you want to go, and tap Calculate route.' },
-  { target: ['#mode-day'], title: 'Whole day', text: 'Set your start, the km you want, lunch and stops, and pick one of a few routes. Part of Premium.' },
-  { target: ['#nav-route'], tap: true, title: 'Route', text: 'Tap Route.' },
-  { target: ['.route-picker-row'], title: 'The route you follow', text: 'Its name is here. Tap it to switch to a recent or saved route; ★ saves it, ✕ closes it.' },
-  { target: ['#route-empty', '#route-screen .steps'], title: 'Step by step', text: 'Your route one step at a time: tick off each lift and piste as you go. With no route open you see your recent and saved routes here.' },
+  { target: ['.plan-mode'], title: 'Two ways to plan', text: 'To a destination: from where you are to one lift or place. Whole day: a full ski day, planned for you. Let us start with a destination.',
+    enter: () => { setPlanMode('quick'); resetSide('from'); resetSide('to'); } },
+  { target: ['#sheet', '#from-box', '#from-chosen'], title: 'Where are you?', text: 'Tap the box and pick the lift or place where you start: from the list, by searching, or on the map.',
+    until: () => !!selected.from && document.getElementById('sheet').style.display === 'none' },
+  { target: ['#sheet', '#to-box', '#to-chosen'], title: 'Where do you want to go?', text: 'Now pick where you want to go, the same way.',
+    until: () => !!selected.to && document.getElementById('sheet').style.display === 'none' },
+  { target: ['#plan-quick .prefs-row'], title: 'Your preferences', text: 'The difficulty you want, your pace and lifts to avoid are one tap away here. They apply to every route.' },
+  { target: ['#plan-quick .plan-btn'], title: 'Calculate', text: 'Tap Calculate route.',
+    until: () => plannerHasRoute('quick') && currentScreen() === 'route' },
+  // Following it
+  { target: ['.route-picker-row'], title: 'Your route', text: 'The route you are on. Tap its name to switch to a recent or saved route.' },
+  { target: ['#p-progress'], title: 'How far you are', text: 'Steps done, and the km and time still to go.' },
+  { target: ['#steps .checkable.next', '#steps .checkable'], title: 'One step at a time', text: 'Each lift and piste with its number and colour, as on the signs, with time and length. Hold or swipe a step to avoid that lift or piste.' },
+  { target: ['#steps .checkable.next .step-check'], title: 'Tick it off', text: 'Done with a step? Tap its circle: the next one lights up.',
+    until: () => (quickTracker?.done || 0) >= 1 },
+  { target: ['#route-save-menu.open .step-menu-panel', '#route-save'], title: 'Save it', text: 'Tap ★, give the route a name and tap Save. You can plan it again any time.',
+    allow: ['#route-save-menu'], until: () => !!shownSavedQuick() },
+  // On the map
   { target: ['#nav-map'], tap: true, title: 'Map', text: 'Tap Map.' },
-  { target: ['#a-map', '#q-map', '#d-map'], title: 'The map', text: 'Your route on the map, the step you are on drawn thick. Zoom in for piste numbers and restaurants. With a route, tick off steps above the map.' },
+  { target: ['#q-map'], title: 'Your route on the map', text: 'The step you are on is drawn thick, the next ones thinner. Zoom in for piste numbers and restaurants.' },
+  { target: ['#q-mapstep .map-step-check'], title: 'Tick it off here too', text: 'The step you are at is named above the map. Tap the circle when it is done.',
+    until: () => (quickTracker?.done || 0) >= 2 },
   { target: ['.map-gps-btn'], title: 'Where am I', text: 'Shows where you are on the mountain.' },
+  { target: ['.map-compass-btn'], title: 'Turn the map', text: 'Turns the map like the piste map at the lift, or back to north up.' },
+  // A whole day
+  { target: ['#nav-plan'], tap: true, title: 'A whole day', text: 'Tap Plan again.' },
+  { target: ['#mode-day'], title: 'Whole day', text: 'Tap Whole day.', until: () => planMode === 'day' },
+  { target: ['#day-paywall'], title: 'Premium', text: 'The day planner is part of Premium: here you see what it gives and get it.' },
+  { target: ['#dstart-box', '#dstart-chosen'], title: 'Start and end', text: 'Where your day starts, and where it ends if that is somewhere else.' },
+  { target: ['#time-setting'], title: 'Time and distance', text: 'When you start and stop, and how many km you want to ski.' },
+  { target: ['#stops-setting'], title: 'Lunch and stops', text: 'Lunch at a mountain restaurant, and places to pass: a lift, a viewpoint, a snow park.' },
+  { target: ['#day-card .plan-btn'], title: 'Plan my day', text: 'Plans your day and gives you a few routes to choose from, then you follow it like your route.' },
+  // Your routes
+  { target: ['#nav-route'], tap: true, title: 'Your routes', text: 'Tap Route.' },
+  { target: ['#route-close'], title: 'Close the route', text: 'Tap ✕ to close the route and see all your routes.',
+    enter: () => window.scrollTo(0, 0),
+    until: () => document.getElementById('route-empty').style.display !== 'none' },
+  { target: ['#route-empty-saved'], title: 'Recent and saved', text: 'Tap a route to open it again. ✎ renames or deletes a saved route.' },
+  // Settings
   { target: ['#nav-account'], tap: true, title: 'Settings', text: 'Tap Settings.' },
   { target: ['.settings-item[onclick="openPrefs()"]'], title: 'Route preferences', text: 'The difficulty you want, your pace, drag lifts, the ski bus, and lifts or pistes to avoid.' },
   { target: ['.settings-item[onclick="showAreaPicker()"]'], title: 'Ski area', text: 'Change your ski area here, or via its name at the top of Plan.' },
-  { target: ['.settings-item[onclick="showIntro()"]'], title: 'That is it', text: 'Run this tour again here any time. Enjoy your ski day!' },
+  { target: ['.settings-item[onclick="showIntro()"]'], title: 'You are ready', text: 'Run this tour again here any time. Enjoy your ski day!' },
 ];
 let introAt = 0;
 let introWait = null; // checking an `until` step
@@ -3021,7 +3051,7 @@ function renderIntro() {
   document.getElementById('intro-text').textContent = step.text;
   document.getElementById('intro-dots').textContent = `${introAt + 1} / ${INTRO_STEPS.length}`;
   // The area picker makes room at the top for the note while it is lit up
-  document.body.classList.toggle('tour-room-top', (step.target || [])[0] === '#area-picker');
+  document.body.classList.toggle('tour-room-top', ['#area-picker', '#sheet'].includes((step.target || [])[0]));
   document.getElementById('intro-back').style.display = 'none';
   document.getElementById('intro-next').style.display = doing ? 'none' : '';
   document.getElementById('intro-next').textContent = last ? 'Get started' : 'Next';
@@ -3030,7 +3060,13 @@ function renderIntro() {
   if (step.until) introWait = setInterval(() => { if (step.until()) introStep(1); }, 300);
   tourLast = '';
   // Bring the part into view once the screen has opened (the frame loop then follows it)
-  setTimeout(() => { const t = tourTarget(step); if (t && !step.until && !step.tap) t.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 80);
+  setTimeout(() => {
+    const t = tourTarget(step);
+    if (!t) return;
+    const r = t.getBoundingClientRect();
+    // explanations are centred; a button to tap only when it is out of sight (scrolled away)
+    if ((!step.until && !step.tap) || r.top < 0 || r.bottom > innerHeight) t.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }, 80);
 }
 
 // Light up the target and put the note next to it, its arrow on the target.
@@ -3093,9 +3129,10 @@ function placeTour() {
 // opened what it opens.
 document.addEventListener('click', event => {
   const tour = document.getElementById('intro');
-  if (!tour || tour.hidden) return;
+  if (!tour || tour.hidden || !event.isTrusted) return; // the app's own clicks (ticking from the map) go through
   if (event.target.closest('#tour-bubble')) return;
   const step = INTRO_STEPS[introAt];
+  if ((step.allow || []).some(sel => event.target.closest(sel))) return; // e.g. the save sheet a step opens
   const target = (step.tap || step.until) && tourTarget(step);
   if (target && target.contains(event.target)) {
     if (step.tap) setTimeout(() => introStep(1), 120);
