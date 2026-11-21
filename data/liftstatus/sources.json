@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-16",
+ "updated": "2026-11-21",
  "minShare": 75,
  "areas": {
   "4-vallees-verbier-la-tzoumaz-nendaz-veys-ch": {
@@ -113,12 +113,24 @@
   "braunwald-ch": {
    "name": "Braunwald",
    "country": "CH",
-   "share": 95,
+   "share": 100,
    "bron": "intermaps.com",
    "sources": [
     {
      "provider": "intermaps",
      "project": "https://winter.intermaps.com/braunwald"
+    }
+   ]
+  },
+  "confin-san-bernardino-ch": {
+   "name": "Confin / San Bernardino",
+   "country": "CH",
+   "share": 100,
+   "bron": "intermaps.com",
+   "sources": [
+    {
+     "provider": "intermaps",
+     "project": "https://winter.intermaps.com/san_bernardino"
     }
    ]
   },
@@ -161,7 +173,7 @@
   "feldberg-de": {
    "name": "Feldberg",
    "country": "DE",
-   "share": 100,
+   "share": 77,
    "bron": "intermaps.com",
    "sources": [
     {
@@ -191,6 +203,18 @@
     {
      "provider": "lumiplan",
      "station": "font-d-urle"
+    }
+   ]
+  },
+  "formigueres-fr": {
+   "name": "Formiguères",
+   "country": "FR",
+   "share": 100,
+   "bron": "lumiplan.pro",
+   "sources": [
+    {
+     "provider": "lumiplan",
+     "station": "formigueres"
     }
    ]
   },
@@ -652,18 +676,6 @@
     }
    ]
   },
-  "meribel-fr": {
-   "name": "Méribel",
-   "country": "FR",
-   "share": 92,
-   "bron": "lumiplan.pro",
-   "sources": [
-    {
-     "provider": "lumiplan",
-     "station": "meribel"
-    }
-   ]
-  },
   "metabief-mont-d-or-fr": {
    "name": "Metabief - Mont d'or",
    "country": "FR",
@@ -760,6 +772,18 @@
     }
    ]
   },
+  "orelle-fr": {
+   "name": "Orelle",
+   "country": "FR",
+   "share": 100,
+   "bron": "lumiplan.pro",
+   "sources": [
+    {
+     "provider": "lumiplan",
+     "station": "orelle"
+    }
+   ]
+  },
   "passo-stelvio-stilfserjoch-it": {
    "name": "Passo Stelvio - Stilfserjoch",
    "country": "IT",
@@ -817,6 +841,18 @@
     {
      "provider": "intermaps",
      "project": "https://winter.intermaps.com/planneralm"
+    }
+   ]
+  },
+  "porte-puymorens-fr": {
+   "name": "Porté-Puymorens",
+   "country": "FR",
+   "share": 78,
+   "bron": "lumiplan.pro",
+   "sources": [
+    {
+     "provider": "lumiplan",
+     "station": "porte-puymorens"
     }
    ]
   },
