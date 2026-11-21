@@ -546,7 +546,7 @@ How it fits together:
   takes it, under the same name (`updateSavedDay` with its new `inputs` and `summary`); **Turn it
   round** swaps start and destination, the way back. A toast says it changed, with Undo; a pick
   with no route between the two leaves it as it was. A **day** is changed in the Plan tab with all
-  its settings: **Change the day (start, times, stops)**. Change the route plans the day
+  its settings: **Change the day (start, times, stops)** plans the day
   again in the Plan tab with its saved settings and shows "Changing <name>": plan it again as you
   like, then **Update this route** (stores the new settings, option and summary in the same saved
   day; migration `20261101000000_change_saved_days.sql` lets users update those columns) or
