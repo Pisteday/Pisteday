@@ -4738,3 +4738,12 @@ body.tour-room-top .sheet {
   height: calc(100dvh - env(safe-area-inset-top) - var(--tour-room, 170px));
   padding-bottom: calc(64px + env(safe-area-inset-bottom)); /* the tab bar stays on top in the tour */
 }
+
+/* Signing in or creating an account: the page scrolls (the area picker,
+   open underneath at start, is hidden then and must not lock it). */
+html.gated body.picker-open {
+  overflow: visible;
+}
+html.gated .picker-backdrop {
+  display: none !important;
+}
