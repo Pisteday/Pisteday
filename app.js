@@ -3044,6 +3044,8 @@ let introToken = 0; // the step being shown; an `enter` or `demo` finishing late
 
 function maybeShowIntro() {
   if (document.documentElement.classList.contains('gated')) return; // after signing in
+  // On a phone in the browser the tour waits for the installed app (Settings → Tour runs it anyway)
+  if (installDevice().mobile && !isInstalledApp()) return;
   let seen = false;
   try { seen = localStorage.getItem(INTRO_SEEN_KEY) === '1'; } catch {}
   if (!seen) showIntro();
@@ -3312,10 +3314,140 @@ document.addEventListener('keydown', event => {
   else if (event.key === 'ArrowRight') introStep(1);
 });
 
+// ── Home screen ──────────────────────────────────────────────────────────────
+//
+// On a phone or tablet in the browser, Pisteday first asks to be put on the
+// home screen: full screen, and offline on the mountain. A web page cannot
+// install itself, so the screen shows what works on this device: Android
+// (Chrome, Edge, Samsung Internet) gets an Install button that opens the
+// browser's own install dialog; an iPhone or iPad gets the Share → Add to Home
+// Screen steps; a page opened inside another app (Instagram, Facebook, Gmail…)
+// is asked to open in Safari or Chrome first, as only those can install it.
+// "Use it in the browser for now" goes on, until the page is opened again (a
+// new browser session). In the installed app, and on a computer, it never shows.
+
+const INSTALL_SKIP_KEY = 'pisteday:browser-ok'; // sessionStorage: chose the browser this time
+let installPrompt = null; // Android's install dialog, once the browser offers it
+
+function isInstalledApp() {
+  return ['standalone', 'fullscreen', 'minimal-ui'].some(m => window.matchMedia?.(`(display-mode: ${m})`).matches)
+    || navigator.standalone === true;
+}
+
+function installDevice() {
+  const ua = navigator.userAgent;
+  const ios = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 0); // iPadOS says Mac
+  const android = /Android/.test(ua);
+  const inApp = /FBAN|FBAV|FB_IAB|Instagram|LinkedInApp|Snapchat|Twitter|MicroMessenger|TikTok|musical_ly|Pinterest|Line\/|GSA\//.test(ua);
+  const browser = ios
+    ? (/CriOS/.test(ua) ? 'chrome' : /FxiOS|EdgiOS|OPiOS|DuckDuckGo/.test(ua) ? 'other' : 'safari')
+    : (/SamsungBrowser/.test(ua) ? 'samsung' : /Firefox/.test(ua) ? 'firefox' : 'chrome');
+  return { ios, android, ipad: ios && !/iPhone|iPod/.test(ua), inApp, browser, mobile: ios || android };
+}
+
+function wantsInstallScreen() {
+  if (isInstalledApp() || !installDevice().mobile) return false;
+  try { return sessionStorage.getItem(INSTALL_SKIP_KEY) !== '1'; } catch { return true; }
+}
+
+function installScreenOpen() {
+  return document.getElementById('install-screen')?.hidden === false;
+}
+
+function showInstallScreen() {
+  if (!wantsInstallScreen()) return;
+  document.getElementById('install-screen').hidden = false;
+  document.documentElement.classList.add('installing');
+  renderInstallHow();
+}
+
+function renderInstallHow(done = false) {
+  const el = document.getElementById('install-how');
+  if (!el) return;
+  const d = installDevice();
+  const key = icon => `<span class="install-key">${ui(icon)}</span>`;
+  const steps = list => `<ol class="install-steps">${list.map(s => `<li>${s}</li>`).join('')}</ol>`;
+  const copy = `<button class="install-copy" type="button" onclick="copyAppLink(this)">${ui('share')} Copy the link</button>`;
+  let html;
+  if (done) {
+    html = `<p class="install-done">${ui('check')} Pisteday is on your home screen. Open it from there.</p>`;
+  } else if (d.inApp) {
+    html = `<p class="install-lead">You opened Pisteday inside another app, which cannot put it on your home screen. Open it in ${d.ios ? 'Safari' : 'Chrome'} first:</p>`
+      + steps([`Tap the menu (<strong>⋯</strong> or <strong>⋮</strong>) of this app.`, `Choose <strong>Open in ${d.ios ? 'Safari' : 'browser'}</strong>.`])
+      + `<p class="install-note">No such option? Copy the link and paste it in ${d.ios ? 'Safari' : 'Chrome'}.</p>` + copy;
+  } else if (d.ios && d.browser === 'other') {
+    html = `<p class="install-lead">On an ${d.ipad ? 'iPad' : 'iPhone'}, open Pisteday in <strong>Safari</strong> to put it on your home screen.</p>` + copy;
+  } else if (d.ios) {
+    const where = d.browser === 'chrome' ? 'in the address bar, top right' : d.ipad ? 'top right' : 'at the bottom of the screen';
+    html = steps([
+      `Tap the <strong>Share</strong> button ${key('share')} ${where}.`,
+      `Scroll down and tap <strong>Add to Home Screen</strong> ${key('addhome')}.`,
+      `Tap <strong>Add</strong>, then open Pisteday from your home screen.`,
+    ]) + `<p class="install-note">No "Add to Home Screen"? Tap <em>Edit Actions</em> at the bottom of the share menu and add it.</p>`;
+  } else if (installPrompt) {
+    html = `<button class="plan-btn install-btn" type="button" onclick="installApp(this)">${ui('addhome')} Install Pisteday</button>`
+      + `<p class="install-note">It appears with your other apps; open it from there.</p>`;
+  } else {
+    const menu = d.browser === 'samsung' ? '≡' : '⋮';
+    html = steps([
+      `Tap the menu <strong>${menu}</strong> ${d.browser === 'samsung' ? 'at the bottom right' : 'at the top right'}.`,
+      d.browser === 'samsung' ? `Tap <strong>Add page to</strong> → <strong>Home screen</strong>.` : `Tap <strong>Install app</strong> (or <strong>Add to Home screen</strong>).`,
+      `Confirm, then open Pisteday from your home screen.`,
+    ]);
+  }
+  el.innerHTML = html;
+}
+
+async function installApp(button) {
+  if (!installPrompt) return renderInstallHow();
+  button.disabled = true;
+  const prompt = installPrompt;
+  installPrompt = null; // the dialog can be shown once
+  prompt.prompt();
+  const { outcome } = await prompt.userChoice.catch(() => ({ outcome: 'dismissed' }));
+  renderInstallHow(outcome === 'accepted');
+}
+
+async function copyAppLink(button) {
+  const link = location.href.split('#')[0];
+  try { await navigator.clipboard.writeText(link); }
+  catch {
+    const t = document.createElement('textarea');
+    t.value = link; document.body.appendChild(t); t.select();
+    try { document.execCommand('copy'); } catch {}
+    t.remove();
+  }
+  button.innerHTML = `${ui('check')} Link copied`;
+}
+
+function useInBrowser() {
+  try { sessionStorage.setItem(INSTALL_SKIP_KEY, '1'); } catch {}
+  document.getElementById('install-screen').hidden = true;
+  document.documentElement.classList.remove('installing');
+}
+
+window.addEventListener('beforeinstallprompt', event => {
+  event.preventDefault(); // our own button opens it
+  installPrompt = event;
+  if (installScreenOpen()) renderInstallHow();
+});
+window.addEventListener('appinstalled', () => {
+  installPrompt = null;
+  if (installScreenOpen()) renderInstallHow(true);
+});
+
+// The app's own page (the manifest's scope is index.html): opened as the
+// folder (…/Pisteday/), the address becomes …/Pisteday/index.html, so the
+// browser offers to install it.
+if (/\/$/.test(location.pathname)) {
+  try { history.replaceState(history.state, '', `index.html${location.search}${location.hash}`); } catch {}
+}
+
 // ── Boot ─────────────────────────────────────────────────────────────────────
 
 showScreen('picker');
 hydrateIcons();
+showInstallScreen(); // phone or tablet in the browser: the home screen first
 applyTheme();
 window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener?.('change', applyTheme);
 initAccount();

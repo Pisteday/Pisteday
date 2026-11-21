@@ -143,6 +143,20 @@ areas it overlaps. For a few parts they are set under `splits` in
 di Fassa", which can be found by searching Val Gardena, Gröden, Selva, Ortisei and so on. The build
 report lists every part and what became of it.
 
+**Home screen first.** On a phone or tablet in the browser, Pisteday first shows a screen asking
+to put it on the home screen (`showInstallScreen`), before signing in: full screen, and offline
+on the mountain. A web page cannot install itself, so it shows what works on that device:
+Android (Chrome, Edge, Samsung Internet) gets an **Install Pisteday** button that opens the
+browser's own install dialog (`beforeinstallprompt`), or the menu steps where the browser offers
+none; iPhone and iPad get the Share → Add to Home Screen steps (Safari, or Chrome on iOS 16.4 and
+later); a page opened inside another app (Instagram, Facebook, Gmail…) is asked to open in Safari
+or Chrome first, with a button to copy the link. **Use it in the browser for now** goes on until
+the page is opened again in a new browser session (`sessionStorage`). In the installed app
+(`display-mode: standalone`, `navigator.standalone`) and on a computer it never shows. Opened as
+the folder (`…/Pisteday/`), the address becomes `…/Pisteday/index.html`, the manifest's scope,
+so the browser offers to install it. On a phone in the browser the tour waits for the installed
+app (Settings → Tour runs it anyway).
+
 The first time the app opens (after signing in, when accounts are on) a **tour** demonstrates the
 app with an example route; you only tap Next. The tour does everything itself: it shows the area
 picker, plans a route (it opens the station list, lights up its Map button, switches it to the map and taps a lift there, so

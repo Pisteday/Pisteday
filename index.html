@@ -640,6 +640,17 @@
 <!-- The app's main navigation, at the bottom like a native app: within
      reach of a thumb, also with gloves on -->
 <!-- The introduction: shown the first time, again from Settings -->
+<!-- On a phone or tablet in the browser: put Pisteday on the home screen first (showInstallScreen) -->
+<div class="install-screen" id="install-screen" role="dialog" aria-modal="true" aria-labelledby="install-title" hidden>
+  <div class="install-panel">
+    <img class="install-icon" src="icons/icon-192.png" alt="" width="72" height="72">
+    <h1 class="install-title" id="install-title">Put Pisteday on your home screen</h1>
+    <p class="install-why">Pisteday works best as an app: full screen, one tap away, and offline on the mountain, where there is often no signal.</p>
+    <div class="install-how" id="install-how"></div>
+    <button class="install-browser" id="install-browser" type="button" onclick="useInBrowser()">Use it in the browser for now</button>
+  </div>
+</div>
+
 <div class="tour" id="intro" role="dialog" aria-modal="true" aria-labelledby="intro-title" hidden>
   <div class="tour-catch"></div>
   <div class="tour-hole" id="tour-hole"></div>
