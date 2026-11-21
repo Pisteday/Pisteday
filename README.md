@@ -222,7 +222,10 @@ does not lose the day being followed) and **Saved routes**, plus planning a new 
 route that is opened goes by its own name at the top (`shownSavedDay` in `account.js`). Opening a saved
 route while a day plan that is not saved is on screen keeps that plan under Recent ("Day plan ·
 not saved", `keepUnsavedDay`): the planner holds one day at a time, so it is planned again from
-its settings when picked, with its option and ticks; planning a new day takes its place. A day
+its settings when picked, with its option and ticks; planning a new day takes its place. A route to
+a destination can be saved too (★ in Route and Map): it keeps its start and destination (in
+`inputs`, with `kind: 'quick'`, so no new database column) and is planned again with today's lift
+status when opened (`openSavedQuick`); its ✎ menu offers Rename and Delete. A day
 plan that is not saved yet has **★** beside its name in Route and Map: it asks for a name and
 saves it there (`saveRouteFromTab`), the same as **Save this route** in the Plan tab. The active
 route is kept per area (`skirouter:active:<area>`); saved routes are kept on the phone too

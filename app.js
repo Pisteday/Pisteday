@@ -837,6 +837,8 @@ function pointLabel(s) {
 
 function routeTitle(kind) {
   if (kind === 'quick') {
+    const saved = typeof shownSavedQuick === 'function' ? shownSavedQuick() : null;
+    if (saved) return { kind: 'Saved route', title: saved.name };
     return { kind: 'Route', title: lastQuickTitle || 'Your route' };
   }
   // A saved route goes by its own name
@@ -872,9 +874,9 @@ function routePickerOptions() {
   const kept = typeof unsavedDay === 'function' ? unsavedDay() : null;
   if (kept) options.push({ group: 'Recent', icon: 'day', label: kept.title, sub: keptDaySub(kept), run: openUnsavedDay });
   if (typeof savedDays !== 'undefined' && (!accountsOn || account)) {
-    const shown = activeRoute === 'day' ? shownSavedDay() : null;
-    savedDays.forEach(day => options.push({ group: 'Saved routes', icon: 'star', label: day.name, on: day.id === shown?.id,
-      sub: [day.area_name, day.summary?.km != null ? `${day.summary.km} km` : ''].filter(Boolean).join(' · '),
+    const shown = activeRoute === 'day' ? shownSavedDay() : activeRoute === 'quick' ? shownSavedQuick() : null;
+    savedDays.forEach(day => options.push({ group: 'Saved routes', icon: isQuickSaved(day) ? 'flag' : 'day', label: day.name, on: day.id === shown?.id,
+      sub: savedRouteSub(day),
       run: () => openSavedDay(day.id) }));
   }
   options.push({ group: '', icon: 'plus', label: 'Plan a new route', run: () => navTo('plan') });
@@ -883,6 +885,11 @@ function routePickerOptions() {
 
 function keptDaySub(kept) {
   return kept.area_id === currentArea?.id ? 'Day plan · not saved' : `Day plan · not saved · ${kept.area_name}`;
+}
+
+// Under a saved route's name: whether it is a route or a day, its area and km.
+function savedRouteSub(day) {
+  return [isQuickSaved(day) ? 'Route' : 'Day plan', day.area_name, day.summary?.km != null ? `${day.summary.km} km` : ''].filter(Boolean).join(' · ');
 }
 
 function openRoutePicker() {
@@ -941,7 +948,7 @@ function renderEmptySaved() {
     return item(`data-recent="${kind}"`, kind === 'quick' ? 'flag' : 'day', t.title, t.kind);
   }).join('') + (kept ? item('data-kept', 'day', kept.title, keptDaySub(kept)) : '') : '')
     + (days.length ? `<div class="prefs-label">${ui('star')} Saved routes</div>` + days.map((day, i) =>
-      `<div class="route-menu-row">${item(`data-day="${i}"`, 'star', day.name, [day.area_name, day.summary?.km != null ? `${day.summary.km} km` : ''].filter(Boolean).join(' · '))}<button type="button" class="route-menu-del" data-edit="${i}" aria-label="Change ${escapeHtml(day.name)}">${ui('edit')}</button></div>`).join('') : '');
+      `<div class="route-menu-row">${item(`data-day="${i}"`, isQuickSaved(day) ? 'flag' : 'day', day.name, savedRouteSub(day))}<button type="button" class="route-menu-del" data-edit="${i}" aria-label="Change ${escapeHtml(day.name)}">${ui('edit')}</button></div>`).join('') : '');
   el.querySelectorAll('[data-recent]').forEach(btn => btn.addEventListener('click', () => {
     setActiveRoute(btn.dataset.recent);
     navTo(document.getElementById('route-screen').dataset.view || 'route');
@@ -2816,6 +2823,7 @@ function clearProgress(kind) {
 // same route as last time.
 function planRouteClicked() {
   clearProgress('quick');
+  if (typeof openedQuickId !== 'undefined') openedQuickId = null; // a route of its own now
   planRoute();
   if (plannerHasRoute('quick') && !document.getElementById('err').classList.contains('visible')) {
     setActiveRoute('quick');

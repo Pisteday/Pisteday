@@ -437,12 +437,31 @@ function currentDayRow() {
   };
 }
 
+// A route to a destination, kept like a day: its start and destination
+// (lift station or place) in `inputs`, marked kind 'quick'.
+function currentQuickRow() {
+  if (!plannerHasRoute('quick') || !currentArea || !selected.from || !selected.to) return null;
+  const km = (lastQuickPath || []).reduce((sum, e) => sum + (e.km || 0), 0);
+  return {
+    area_id: currentArea.id,
+    area_name: currentArea.name,
+    inputs: { kind: 'quick', from: selected.from.id, fromPlace: selected.from.place?.id || null, to: selected.to.id, toPlace: selected.to.place?.id || null },
+    option: 0,
+    summary: { kind: 'quick', km: Math.round(km * 10) / 10, from: pointLabel(selected.from), to: pointLabel(selected.to) },
+  };
+}
+
+const isQuickSaved = day => day?.inputs?.kind === 'quick';
+
 // Save the day on screen under `name` (Plan tab, or ★ in Route and Map).
 // Answers with what went wrong, or '' when it is saved.
 async function saveDayAs(name) {
+  return saveRowAs(currentDayRow(), name, 'There is no day plan to save.');
+}
+
+async function saveRowAs(day, name, none) {
   if (accountsOn && !navigator.onLine) return 'You are offline. Saving needs a connection.';
-  const day = currentDayRow();
-  if (!day) return 'There is no day plan to save.';
+  if (!day) return none;
   const row = { ...day, name: name.slice(0, 100) };
   let data = null;
   if (accountsOn) {
@@ -455,9 +474,12 @@ async function saveDayAs(name) {
   }
   savedDays.unshift(data);
   storeSavedDays();
-  saveDayCancel();
-  stopEditingDay();
-  openedDayId = data.id; // the day on screen is this saved route now
+  if (isQuickSaved(data)) openedQuickId = data.id; // the route on screen is this saved route now
+  else {
+    saveDayCancel();
+    stopEditingDay();
+    openedDayId = data.id; // the day on screen is this saved route now
+  }
   if (typeof renderRoutePicker === 'function') renderRoutePicker();
   return '';
 }
@@ -468,10 +490,11 @@ function suggestedDayName() {
   return `${dayCtx?.startName || currentArea?.name || 'My day'} · ${date}`.slice(0, 100);
 }
 
-// ★ beside the route's name in Route and Map: save the day plan on screen,
-// without going back to the Plan tab.
+// ★ beside the route's name in Route and Map: save the route on screen (a
+// day plan, or a route to a destination), without going back to Plan.
 function canSaveShownRoute() {
-  return activeRoute === 'day' && plannerHasRoute('day') && hasSeasonPass() && !shownSavedDay();
+  if (!hasSeasonPass() || !plannerHasRoute(activeRoute)) return false;
+  return activeRoute === 'quick' ? !shownSavedQuick() : activeRoute === 'day' && !shownSavedDay();
 }
 
 function saveRouteFromTab() {
@@ -488,7 +511,7 @@ function saveRouteFromTab() {
   menu.innerHTML = `<div class="step-menu-panel" role="dialog" aria-label="Save this route">
       <div class="step-menu-title">${ui('star')} Save this route</div>
       <form class="save-day-form day-rename">
-        <input class="day-input" maxlength="100" aria-label="Name of this route" enterkeyhint="done" value="${escapeHtml(suggestedDayName())}">
+        <input class="day-input" maxlength="100" aria-label="Name of this route" enterkeyhint="done" value="${escapeHtml(activeRoute === 'quick' ? lastQuickTitle.slice(0, 100) : suggestedDayName())}">
         <button class="save-day-ok" type="submit">Save</button>
       </form>
       <div class="save-day-msg"></div>
@@ -501,7 +524,7 @@ function saveRouteFromTab() {
     if (!name) return;
     const button = menu.querySelector('.save-day-ok');
     button.disabled = true;
-    const problem = await saveDayAs(name);
+    const problem = activeRoute === 'quick' ? await saveRowAs(currentQuickRow(), name, 'There is no route to save.') : await saveDayAs(name);
     button.disabled = false;
     if (problem) { msg.textContent = problem; return; }
     close();
@@ -582,8 +605,31 @@ async function openUnsavedDay() {
   await openSavedDay(null, { day: kept });
 }
 
+// A saved route to a destination: its area, start and destination, planned
+// again with today's lift status, and followed in Route (or Map).
+async function openSavedQuick(day) {
+  const view = currentScreen() === 'route' ? document.getElementById('route-screen').dataset.view : 'route';
+  const meta = AREAS.find(a => a.id === areaIdNow(day.area_id));
+  if (!meta) { showAccountNotice(`"${day.area_name}" is not in the ski area list any more.`); return; }
+  closeAccount();
+  if (currentArea?.id !== meta.id) await selectArea(meta);
+  if (currentArea?.id !== meta.id) return;
+  const inputs = day.inputs || {};
+  if (!restorePlace('from', inputs.fromPlace)) restoreStation('from', inputs.from);
+  if (!restorePlace('to', inputs.toPlace)) restoreStation('to', inputs.to);
+  setPlanMode('quick');
+  clearProgress('quick');
+  planRoute({ silent: true });
+  openedQuickId = day.id;
+  if (plannerHasRoute('quick')) {
+    setActiveRoute('quick');
+    navTo(view === 'map' ? 'map' : 'route');
+  } else navTo('plan');
+}
+
 async function openSavedDay(id, { edit = false, day = savedDays.find(d => d.id === id) } = {}) {
   if (!day) return;
+  if (isQuickSaved(day)) return openSavedQuick(day);
   stopEditingDay();
   const view = currentScreen() === 'route' ? document.getElementById('route-screen').dataset.view : 'route';
   const meta = AREAS.find(a => a.id === areaIdNow(day.area_id));
@@ -621,6 +667,15 @@ async function openSavedDay(id, { edit = false, day = savedDays.find(d => d.id =
 
 let editingDay = null; // the saved day being changed in the Plan tab
 let openedDayId = null; // the saved day opened last, while its day is on screen
+let openedQuickId = null; // the saved route to a destination opened (or saved) last
+
+// The saved route to a destination on screen, or null: none was opened, or
+// the start or destination has changed since.
+function shownSavedQuick() {
+  const day = openedQuickId && savedDays.find(d => d.id === openedQuickId);
+  const inputs = day?.inputs || {};
+  return day && plannerHasRoute('quick') && selected.from?.id === inputs.from && selected.to?.id === inputs.to ? day : null;
+}
 
 // The saved day on screen (its name is the day's title), or null: none was
 // opened, the day was planned again, or another of its options is shown.
@@ -710,7 +765,9 @@ function showSavedDayMenu(id) {
     if (editingDay === day.id) renderSaveDay();
     close();
   });
-  menu.querySelector('[data-act="route"]').addEventListener('click', () => { close(); openSavedDay(day.id, { edit: true }); });
+  const change = menu.querySelector('[data-act="route"]');
+  if (isQuickSaved(day)) change.remove(); // a route to a destination: rename or delete (plan a new one to change it)
+  else change.addEventListener('click', () => { close(); openSavedDay(day.id, { edit: true }); });
   menu.querySelector('[data-act="delete"]').addEventListener('click', async () => { if (await deleteSavedDay(day.id)) close(); });
   menu.querySelector('.step-menu-cancel').addEventListener('click', close);
   menu.classList.add('open');
