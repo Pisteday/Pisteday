@@ -4911,3 +4911,168 @@ html.installing body {
   text-underline-offset: 3px;
   padding: 10px;
 }
+
+/* ── My routes: the button in the route bar, the list, Undo ── */
+.route-list-btn {
+  position: relative;
+}
+.route-count {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 10px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 20px;
+  text-align: center;
+}
+.route-save.is-saved {
+  color: #e8a500;
+}
+.route-save.is-saved .ui-icon {
+  fill: currentColor;
+}
+.route-menu .step-menu-panel {
+  max-height: 86dvh;
+  overflow-y: auto;
+}
+.route-menu-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 4px 2px;
+}
+.route-menu-head strong {
+  font-family: 'Bebas Neue', sans-serif;
+  font-weight: 400;
+  font-size: 1.5rem;
+  letter-spacing: 0.5px;
+  color: var(--midnight);
+}
+.route-menu-new {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--primary);
+  color: #fff;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.route-menu-new .ui-icon {
+  width: 16px;
+  height: 16px;
+}
+.route-list-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 4px 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--fg-6a7d92);
+}
+.route-list-title .ui-icon {
+  width: 15px;
+  height: 15px;
+}
+.route-menu-none {
+  margin: 4px;
+  color: var(--fg-6a7d92);
+  font-size: 0.9rem;
+}
+.route-menu-more {
+  flex: 0 0 48px;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid var(--ice);
+  border-radius: 12px;
+  background: var(--snow);
+  color: var(--accent);
+  cursor: pointer;
+}
+.route-menu-more .ui-icon {
+  width: 20px;
+  height: 20px;
+}
+.route-empty-saved .route-menu-btn {
+  width: 100%;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.route-empty-saved .route-menu-row {
+  margin-bottom: 8px;
+}
+.route-empty-saved .route-menu-row .route-menu-btn {
+  margin-bottom: 0;
+}
+.route-menu-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.route-menu-btn > .ui-icon {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+}
+.undo-toast {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  top: calc(env(safe-area-inset-top) + 12px); /* clear of the lists and sheets at the bottom */
+  z-index: 3500;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #0c1f3a;
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.92rem;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  transform: translateY(-20px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.undo-toast.open {
+  transform: none;
+  opacity: 1;
+  pointer-events: auto;
+}
+.undo-toast span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.undo-toast button {
+  border: 0;
+  background: none;
+  color: #8fc1ff;
+  font: inherit;
+  font-weight: 700;
+  padding: 4px 6px;
+  cursor: pointer;
+}
+/* The tour shows My routes: under the tour's light, framed by it */
+body.touring #route-menu {
+  z-index: 2090;
+}

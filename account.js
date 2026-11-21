@@ -497,6 +497,19 @@ function canSaveShownRoute() {
   return activeRoute === 'quick' ? !shownSavedQuick() : activeRoute === 'day' && !shownSavedDay();
 }
 
+// The route on screen as a saved route, or null.
+function shownSavedRoute() {
+  return activeRoute === 'quick' ? shownSavedQuick() : activeRoute === 'day' ? shownSavedDay() : null;
+}
+
+// ★ beside the route's name: ☆ saves the route on screen; ★ (saved) opens
+// its menu: rename, save as a copy, delete.
+function routeStarClicked() {
+  const saved = shownSavedRoute();
+  if (saved) showSavedDayMenu(saved.id);
+  else saveRouteFromTab();
+}
+
 function saveRouteFromTab() {
   if (!canSaveShownRoute()) return;
   let menu = document.getElementById('route-save-menu');
@@ -552,7 +565,7 @@ async function loadSavedDays() {
   if (!accountsOn || !account) return;
   if (!navigator.onLine) return;
   const { data, error } = await sb.from('routes').select('*').order('created_at', { ascending: false });
-  if (!error) { savedDays = data || []; storeSavedDays(); }
+  if (!error) { savedDays = (data || []).filter(d => d.id !== pendingDelete?.day.id); storeSavedDays(); }
 }
 
 function localDayId() {
@@ -730,7 +743,8 @@ async function updateSavedDay(id, changes) {
 }
 
 // A saved day's own menu: rename it, change its route, or delete it.
-function showSavedDayMenu(id) {
+// `back`: what to show again once done (My routes, when it was opened from there)
+function showSavedDayMenu(id, back = null) {
   const day = savedDays.find(d => d.id === id);
   if (!day) return;
   document.getElementById('route-menu')?.classList.remove('open');
@@ -742,7 +756,7 @@ function showSavedDayMenu(id) {
     menu.addEventListener('click', event => { if (event.target === menu) menu.classList.remove('open'); });
     document.body.appendChild(menu);
   }
-  const close = () => menu.classList.remove('open');
+  const close = () => { menu.classList.remove('open'); back?.(); };
   menu.innerHTML = `<div class="step-menu-panel" role="dialog" aria-label="Change saved route">
       <div class="step-menu-title">${ui('star')} ${escapeHtml(day.name)}</div>
       <form class="save-day-form day-rename">
@@ -751,6 +765,7 @@ function showSavedDayMenu(id) {
       </form>
       <div class="save-day-msg"></div>
       <button type="button" class="step-menu-btn" data-act="route">${ui('route')} Change the route</button>
+      <button type="button" class="step-menu-btn" data-act="copy">${ui('plus')} Save as a copy</button>
       <button type="button" class="step-menu-btn step-menu-danger" data-act="delete">${ui('trash')} Delete this route</button>
       <button type="button" class="step-menu-btn step-menu-cancel">Cancel</button>
     </div>`;
@@ -768,25 +783,95 @@ function showSavedDayMenu(id) {
   const change = menu.querySelector('[data-act="route"]');
   if (isQuickSaved(day)) change.remove(); // a route to a destination: rename or delete (plan a new one to change it)
   else change.addEventListener('click', () => { close(); openSavedDay(day.id, { edit: true }); });
+  // A copy of the route on screen, as a saved route of its own
+  const copy = menu.querySelector('[data-act="copy"]');
+  const onScreen = (activeRoute === 'quick' && shownSavedQuick()?.id === day.id) || (activeRoute === 'day' && shownSavedDay()?.id === day.id);
+  if (!onScreen) copy.remove();
+  else copy.addEventListener('click', async () => {
+    const name = `${day.name} (copy)`.slice(0, 100);
+    const problem = activeRoute === 'quick' ? await saveRowAs(currentQuickRow(), name, 'There is no route to save.') : await saveDayAs(name);
+    if (problem) { msg.textContent = problem; return; }
+    close();
+    refreshRouteLists();
+  });
   menu.querySelector('[data-act="delete"]').addEventListener('click', async () => { if (await deleteSavedDay(day.id)) close(); });
   menu.querySelector('.step-menu-cancel').addEventListener('click', close);
   menu.classList.add('open');
 }
 
+// Delete a saved route at once, with Undo for a few seconds; only then is it
+// deleted from the account (one deletion at a time: a second one finishes
+// the first).
+let pendingDelete = null; // { day, index, timer }
 async function deleteSavedDay(id) {
-  const day = savedDays.find(d => d.id === id);
-  if (!day || !confirm(`Delete "${day.name}"?`)) return false;
-  if (accountsOn) {
-    const { error } = await sb.from('routes').delete().eq('id', id);
-    if (error) { showAccountNotice('Could not delete it. Try again.'); return false; }
-  }
+  const index = savedDays.findIndex(d => d.id === id);
+  if (index < 0) return false;
+  await commitPendingDelete();
+  const day = savedDays[index];
   savedDays = savedDays.filter(d => d.id !== id);
   storeSavedDays();
   if (editingDay === id) stopEditingDay();
+  refreshRouteLists();
+  pendingDelete = { day, index, timer: setTimeout(commitPendingDelete, 6000) };
+  showUndoToast(`Deleted "${day.name}"`, undoDelete);
+  return true;
+}
+
+async function commitPendingDelete() {
+  const p = pendingDelete;
+  if (!p) return;
+  pendingDelete = null;
+  clearTimeout(p.timer);
+  hideUndoToast();
+  if (!accountsOn) return;
+  const { error } = await sb.from('routes').delete().eq('id', p.day.id);
+  if (error) {
+    savedDays.splice(Math.min(p.index, savedDays.length), 0, p.day); // still there: back in the list
+    storeSavedDays();
+    refreshRouteLists();
+    showAccountNotice('Could not delete it. Try again.');
+  }
+}
+
+function undoDelete() {
+  const p = pendingDelete;
+  if (!p) return;
+  pendingDelete = null;
+  clearTimeout(p.timer);
+  hideUndoToast();
+  savedDays.splice(Math.min(p.index, savedDays.length), 0, p.day);
+  storeSavedDays();
+  refreshRouteLists();
+}
+
+// Leaving the app finishes a deletion that was waiting for Undo
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') commitPendingDelete(); });
+
+function showUndoToast(text, onUndo) {
+  let el = document.getElementById('undo-toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'undo-toast';
+    el.className = 'undo-toast';
+    el.setAttribute('role', 'status');
+    document.body.appendChild(el);
+  }
+  el.innerHTML = `<span></span><button type="button">Undo</button>`;
+  el.querySelector('span').textContent = text;
+  el.querySelector('button').addEventListener('click', onUndo);
+  el.classList.add('open');
+}
+
+function hideUndoToast() {
+  document.getElementById('undo-toast')?.classList.remove('open');
+}
+
+// Every place that lists saved routes, after one changed
+function refreshRouteLists() {
   renderAccount();
   if (typeof renderEmptySaved === 'function') renderEmptySaved();
   if (typeof renderRoutePicker === 'function') renderRoutePicker(); // the route on screen may be this one: its title and ★
-  return true;
+  if (document.getElementById('route-menu')?.classList.contains('open') && typeof showRouteMenu === 'function') showRouteMenu();
 }
 
 // Days saved on this phone before accounts were on: into the account at the
