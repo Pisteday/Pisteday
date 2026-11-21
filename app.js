@@ -472,12 +472,15 @@ function renderAreaList() {
     return;
   }
 
+  // The tour shows the list as someone new sees it: no last area, no favourites.
+  const asNew = document.body.classList.contains('touring');
+
   // The area opened last time (or open now), one tap away: on start and when
   // changing area alike.
-  const last = lastArea();
+  const last = asNew ? null : lastArea();
   if (last) section('Your last ski area', [last]);
 
-  const favourites = favouriteAreaIds().map(id => AREAS.find(a => a.id === id)).filter(Boolean)
+  const favourites = asNew ? [] : favouriteAreaIds().map(id => AREAS.find(a => a.id === id)).filter(Boolean)
     .sort((x, y) => x.name.localeCompare(y.name));
   if (favourites.length) section('Favourites', favourites);
   else {

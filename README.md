@@ -145,7 +145,7 @@ through the app as for someone new: it opens the area picker and waits until you
 then asks you to tap Plan, Route, Map and Settings yourself. When a tab opens it lights up its
 parts one at a time (the two ways to plan, start and destination, the route bar, the steps, the
 map and its location button, route preferences…), each with a short note and an arrow. Only the
-lit-up control responds while the tour runs; Skip is always there. The light and the note follow
+lit-up control responds while the tour runs; Skip is always there. The area list shows as for someone new (no last area, no favourites). The light and the note follow
 the screen every frame (a pop-up sliding in, the keyboard, scrolling); the note goes above or below
 the part where it fits without covering it, and the area picker leaves room at the top for it. A
 step asking for a tap whose control is not on screen shows Next instead, so the tour never gets
