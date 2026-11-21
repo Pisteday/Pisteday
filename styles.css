@@ -4471,122 +4471,139 @@ body:not(.has-area) .tabbar-btn {
   pointer-events: none;
 }
 
-/* ── Introduction: five cards, the first time and from Settings ── */
-.intro {
+/* ── Tour: the real buttons lit up one by one, a note pointing at each ── */
+.tour {
   position: fixed;
   inset: 0;
   z-index: 2100; /* above the area picker */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px 16px;
-  background: rgba(8, 22, 41, 0.6);
-  -webkit-backdrop-filter: blur(3px);
-  backdrop-filter: blur(3px);
 }
 
-.intro[hidden] {
+.tour[hidden] {
   display: none;
 }
 
-.intro-card {
-  position: relative;
-  width: 100%;
-  max-width: 400px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  padding: 28px 22px 18px;
-  border-radius: 20px;
-  background: var(--bg-ffffff);
-  box-shadow: 0 18px 50px rgba(8, 22, 41, 0.35);
-  text-align: center;
-  font-family: 'DM Sans', sans-serif;
-  animation: picker-in 0.22s ease;
+.tour-catch {
+  position: absolute;
+  inset: 0; /* the app cannot be tapped during the tour */
 }
 
-.intro-skip {
+.tour-hole {
+  position: fixed;
+  border-radius: 14px;
+  box-shadow: 0 0 0 200vmax rgba(8, 22, 41, 0.66);
+  outline: 2px solid rgba(255, 255, 255, 0.9);
+  pointer-events: none;
+  transition: left 0.25s ease, top 0.25s ease, width 0.25s ease, height 0.25s ease;
+}
+
+/* The tab bar above the area picker while it is shown, so its buttons can be lit up */
+body.touring .tabbar {
+  z-index: 2050;
+}
+
+body.touring .tabbar-btn {
+  opacity: 1;
+}
+
+.tour-bubble {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(340px, calc(100vw - 24px));
+  padding: 16px 16px 12px;
+  border-radius: 16px;
+  background: var(--bg-ffffff);
+  box-shadow: 0 14px 40px rgba(8, 22, 41, 0.35);
+  font-family: 'DM Sans', sans-serif;
+  animation: picker-in 0.2s ease;
+}
+
+.tour-arrow {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  width: 16px;
+  height: 16px;
+  margin-left: -8px;
+  background: var(--bg-ffffff);
+  transform: rotate(45deg);
+}
+
+.tour-arrow.up {
+  top: -7px;
+}
+
+.tour-arrow.down {
+  bottom: -7px;
+}
+
+.tour-skip {
+  position: absolute;
+  top: 8px;
+  right: 8px;
   padding: 6px 10px;
   border: 0;
-  border-radius: 999px;
   background: none;
   color: var(--fg-6a7d92);
-  font: 600 0.85rem 'DM Sans', sans-serif;
+  font: 600 0.82rem 'DM Sans', sans-serif;
   cursor: pointer;
 }
 
-.intro-ico {
-  display: grid;
-  place-items: center;
-  width: 72px;
-  height: 72px;
-  margin-top: 6px;
-  border-radius: 20px;
-  background: var(--bg-e3efff);
-  color: var(--accent);
-}
-
-.intro-ico .ui-icon {
-  width: 36px;
-  height: 36px;
-}
-
-.intro-title {
-  margin: 4px 0 0;
+.tour-title {
+  margin: 0;
+  padding-right: 50px;
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.7rem;
+  font-size: 1.45rem;
   font-weight: 400;
   letter-spacing: 0.5px;
   color: var(--midnight);
 }
 
-.intro-text {
+.tour-text {
   margin: 0;
-  min-height: 4.2em;
-  font-size: 0.95rem;
-  line-height: 1.45;
+  font-size: 0.92rem;
+  line-height: 1.4;
   color: var(--fg-4a5d72);
+}
+
+.tour-foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.tour-foot .intro-dots {
+  flex: 1;
+}
+
+.tour-next {
+  width: auto;
+  margin: 0;
+  padding: 10px 18px;
 }
 
 .intro-dots {
   display: flex;
-  gap: 6px;
-  margin: 4px 0 2px;
+  gap: 5px;
 }
 
 .intro-dots span {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: var(--ice);
   transition: width 0.2s ease;
 }
 
 .intro-dots span.on {
-  width: 20px;
+  width: 16px;
   border-radius: 999px;
   background: var(--accent);
 }
 
-.intro-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  width: 100%;
-}
-
-.intro-actions .plan-btn {
-  flex: 1;
-  margin: 0;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .intro-card { animation: none; }
+  .tour-bubble { animation: none; }
+  .tour-hole { transition: none; }
 }
 
 /* The open ski area (top right) only on the Plan tab */

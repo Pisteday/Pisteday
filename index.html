@@ -190,7 +190,7 @@
       </button>
       <button class="settings-item" type="button" onclick="showIntro()">
         <span class="settings-ico"><i data-i="tip"></i></span>
-        <span class="settings-text"><strong>Introduction</strong><small>the basics in five steps</small></span>
+        <span class="settings-text"><strong>Tour</strong><small>where everything is in the app</small></span>
         <i data-i="right"></i>
       </button>
       <a class="settings-item" href="guide/" target="_blank" rel="noopener">
@@ -637,16 +637,18 @@
 <!-- The app's main navigation, at the bottom like a native app: within
      reach of a thumb, also with gloves on -->
 <!-- The introduction: shown the first time, again from Settings -->
-<div class="intro" id="intro" role="dialog" aria-modal="true" aria-labelledby="intro-title" hidden>
-  <div class="intro-card">
-    <button class="intro-skip" type="button" onclick="closeIntro()">Skip</button>
-    <div class="intro-ico" id="intro-ico"></div>
-    <h2 class="intro-title" id="intro-title"></h2>
-    <p class="intro-text" id="intro-text"></p>
-    <div class="intro-dots" id="intro-dots" aria-hidden="true"></div>
-    <div class="intro-actions">
-      <button class="link-btn intro-back" id="intro-back" type="button" onclick="introStep(-1)">Back</button>
-      <button class="plan-btn intro-next" id="intro-next" type="button" onclick="introStep(1)">Next</button>
+<div class="tour" id="intro" role="dialog" aria-modal="true" aria-labelledby="intro-title" hidden>
+  <div class="tour-catch"></div>
+  <div class="tour-hole" id="tour-hole"></div>
+  <div class="tour-bubble" id="tour-bubble">
+    <span class="tour-arrow" id="tour-arrow"></span>
+    <button class="tour-skip" type="button" onclick="closeIntro()">Skip</button>
+    <h2 class="tour-title" id="intro-title"></h2>
+    <p class="tour-text" id="intro-text"></p>
+    <div class="tour-foot">
+      <div class="intro-dots" id="intro-dots" aria-hidden="true"></div>
+      <button class="link-btn" id="intro-back" type="button" onclick="introStep(-1)">Back</button>
+      <button class="plan-btn tour-next" id="intro-next" type="button" onclick="introStep(1)">Next</button>
     </div>
   </div>
 </div>
