@@ -121,8 +121,22 @@ function renderGate(mode, message = '') {
     el.querySelectorAll('input, select').forEach(input => { input.disabled = el.style.display === 'none'; });
   });
   // Free or Premium is only a choice while payments are on
+  // While SkiRouter is being tested, Free and Premium are shown with their
+  // price but cannot be chosen: only the test version can.
   const plans = document.getElementById('gate-plans');
-  if (!paymentsOn) plans.style.display = 'none';
+  const testing = !paymentsOn;
+  plans.classList.toggle('is-testing', testing);
+  document.getElementById('gate-plan-test').hidden = !testing;
+  plans.querySelectorAll('input[name="gate-plan"]').forEach(input => {
+    const test = input.value === 'test';
+    if (test) input.checked = testing;
+    else {
+      input.disabled = testing || input.closest('[data-for]').style.display === 'none';
+      if (testing) input.checked = false;
+      else if (input.value === 'free' && !plans.querySelector('input[name="gate-plan"]:checked')) input.checked = true;
+    }
+    input.closest('.gate-plan').classList.toggle('is-unavailable', testing && !test);
+  });
   document.getElementById('gate-plan-price').textContent = `€${accountCfg.seasonPrice || '9.99'} per season`;
   const titles = { signin: 'Sign in', signup: 'Create your account', reset: 'Forgot your password', newpassword: 'Choose a new password', sent: 'Check your email' };
   document.getElementById('gate-title').textContent = titles[mode] || 'Sign in';

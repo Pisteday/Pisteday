@@ -72,6 +72,14 @@
       <!-- Free or Premium: what each gives (only while payments are on) -->
       <fieldset class="gate-plans" id="gate-plans" data-for="signup">
         <legend class="sel-label">Choose your account</legend>
+        <!-- While SkiRouter is being tested: the only one to choose -->
+        <label class="gate-plan gate-plan-test" id="gate-plan-test" hidden>
+          <input type="radio" name="gate-plan" value="test">
+          <span class="gate-plan-body">
+            <span class="gate-plan-head"><strong>Test version</strong><small>€0</small></span>
+            <span class="gate-plan-note">Everything in Premium, free while SkiRouter is being tested.</span>
+          </span>
+        </label>
         <label class="gate-plan">
           <input type="radio" name="gate-plan" value="free" checked>
           <span class="gate-plan-body">
