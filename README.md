@@ -140,7 +140,10 @@ areas it overlaps. For a few parts they are set under `splits` in
 di Fassa", which can be found by searching Val Gardena, Gröden, Selva, Ortisei and so on. The build
 report lists every part and what became of it.
 
-The area picker is a **pop-up** over the app (`showAreaPicker`). Before an area is open it is
+The first time the app opens (after signing in, when accounts are on) an **introduction** of five
+short cards explains the basics: the ski area, planning a route or a whole day, following it in
+Route and Map, and Settings. Every card has Skip; **Settings → Introduction** shows it again
+(`showIntro`; seen once, kept as `skirouter:intro-seen`). The area picker is a **pop-up** over the app (`showAreaPicker`). Before an area is open it is
 all there is: the tab bar shows behind it, dimmed, and its buttons cannot be used yet. Once an area
 is open the pop-up opens from the area's name in the header and closes with ✕, a tap beside it or
 Escape, leaving the screen you were on as it was (`closeAreaPicker`). The app starts on the area picker, with the area used last on top (*Your last ski area*); that

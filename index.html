@@ -188,6 +188,11 @@
         <span class="settings-text"><strong>App settings</strong><small id="settings-app-sum"></small></span>
         <i data-i="right"></i>
       </button>
+      <button class="settings-item" type="button" onclick="showIntro()">
+        <span class="settings-ico"><i data-i="tip"></i></span>
+        <span class="settings-text"><strong>Introduction</strong><small>the basics in five steps</small></span>
+        <i data-i="right"></i>
+      </button>
       <a class="settings-item" href="guide/" target="_blank" rel="noopener">
         <span class="settings-ico"><i data-i="guide"></i></span>
         <span class="settings-text"><strong>Guide</strong><small>how Pisteday works, step by step</small></span>
@@ -631,6 +636,21 @@
 
 <!-- The app's main navigation, at the bottom like a native app: within
      reach of a thumb, also with gloves on -->
+<!-- The introduction: shown the first time, again from Settings -->
+<div class="intro" id="intro" role="dialog" aria-modal="true" aria-labelledby="intro-title" hidden>
+  <div class="intro-card">
+    <button class="intro-skip" type="button" onclick="closeIntro()">Skip</button>
+    <div class="intro-ico" id="intro-ico"></div>
+    <h2 class="intro-title" id="intro-title"></h2>
+    <p class="intro-text" id="intro-text"></p>
+    <div class="intro-dots" id="intro-dots" aria-hidden="true"></div>
+    <div class="intro-actions">
+      <button class="link-btn intro-back" id="intro-back" type="button" onclick="introStep(-1)">Back</button>
+      <button class="plan-btn intro-next" id="intro-next" type="button" onclick="introStep(1)">Next</button>
+    </div>
+  </div>
+</div>
+
 <nav class="tabbar" id="tabbar" aria-label="Main">
   <button class="tabbar-btn" id="nav-plan" type="button" onclick="navTo('plan')"><i data-i="route"></i><span>Plan</span></button>
   <button class="tabbar-btn" id="nav-route" type="button" onclick="navTo('route')"><i data-i="list"></i><span>Route</span></button>

@@ -110,6 +110,7 @@ function gate() {
 
 function ungate() {
   document.documentElement.classList.remove('gated');
+  if (typeof maybeShowIntro === 'function') maybeShowIntro();
 }
 
 // One form at a time: signin, signup, reset, newpassword, or a message.
