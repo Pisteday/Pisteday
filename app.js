@@ -2938,73 +2938,94 @@ function renderProgress(id, done, total, text, extraHtml = '') {
 
 // ── Tour ─────────────────────────────────────────────────────────────────────
 //
-// A hands-on tour the first time the app opens (after signing in, when
-// accounts are on), and again from Settings → Tour: it starts as for someone
-// new, from choosing a ski area, and then has you tap each tab yourself. When
-// a tab opens it lights up what is on it, one part at a time, with a short
-// note pointing at each. Only what the tour asks for can be tapped; Skip is
-// always there.
+// A tour the first time the app opens (after signing in, when accounts are
+// on), and again from Settings → Tour. It is a demonstration: the tour does
+// everything itself, with an example route, and you only tap Next. It opens
+// the area picker, plans a route, ticks off steps in the list and on the map,
+// shows the day planner, your routes and Settings, lighting up one part at a
+// time with a short note pointing at it. Nothing in the app can be tapped
+// meanwhile, and when the tour ends (or is skipped) everything is put back
+// as it was. Without a ski area yet it opens an example area, and asks you to
+// choose your own at the end.
 //
-// A step either asks you to do something (`tap`: tap the lit-up control;
-// `until`: done once its condition holds, e.g. an area is chosen) or explains
-// (Next). `target` lists places to light up, the first one on screen wins; an
-// explaining step with none on screen is left out.
+// A step's `enter` does what the step shows (it may wait for an area to
+// load); `target` lists places to light up, the first one on screen wins; a
+// step with none on screen is left out. `demo` runs a moment after the step
+// shows, so you see it happen (a step being ticked off).
 
 const INTRO_SEEN_KEY = 'skirouter:intro-seen';
+const TOUR_EXAMPLE_AREA = 'kitzski';
+let tourState = null; // what the tour changed, to put back: see tourBegin / tourRestore
+let tourDemo = null;  // the example route: { from, to } station ids
+
 const INTRO_STEPS = [
-  { title: 'Welcome to Pisteday', text: 'Let us plan a first route together. Follow the lit-up steps: you tap and choose yourself.' },
+  { title: 'Welcome to Pisteday', text: 'A short tour with an example route. Just tap Next: the tour does it all, nothing is changed or saved.' },
   // Ski area
-  { target: ['#area-picker'], title: 'Choose a ski area', text: 'Search for a ski area, village or region, or open a country, and tap your ski area.',
-    enter: () => showAreaPicker(),
-    until: () => !!currentArea && !document.body.classList.contains('picker-open') },
-  // A route to a destination, done for real
-  { target: ['#nav-plan'], tap: true, title: 'Plan', text: 'Tap Plan.' },
-  { target: ['.plan-mode'], title: 'Two ways to plan', text: 'To a destination: from where you are to one lift or place. Whole day: a full ski day, planned for you. Let us start with a destination.',
-    enter: () => { setPlanMode('quick'); resetSide('from'); resetSide('to'); } },
-  { target: ['#sheet', '#from-box', '#from-chosen'], title: 'Where are you?', text: 'Tap the box and pick the lift or place where you start: from the list, by searching, or on the map.',
-    until: () => !!selected.from && document.getElementById('sheet').style.display === 'none' },
-  { target: ['#sheet', '#to-box', '#to-chosen'], title: 'Where do you want to go?', text: 'Now pick where you want to go, the same way.',
-    until: () => !!selected.to && document.getElementById('sheet').style.display === 'none' },
-  { target: ['#plan-quick .prefs-row'], title: 'Your preferences', text: 'The difficulty you want, your pace and lifts to avoid are one tap away here. They apply to every route.' },
-  { target: ['#plan-quick .plan-btn'], title: 'Calculate', text: 'Tap Calculate route.',
-    until: () => plannerHasRoute('quick') && currentScreen() === 'route' },
+  { target: ['#area-picker'], title: 'Your ski area', enter: () => showAreaPicker(),
+    text: () => tourState?.area
+      ? 'First you choose your ski area: search for an area, village or region, or open a country. The tour goes on with the area you have open.'
+      : 'First you choose your ski area: search for an area, village or region, or open a country. The tour shows an example area; you choose your own at the end.' },
+  // A route to a destination
+  { target: ['#nav-plan'], title: 'Plan', text: 'Plan is where you plan your route.',
+    enter: async () => {
+      if (!(await tourEnsureArea())) return;
+      closeAreaPicker();
+      navTo('plan');
+      setPlanMode('quick');
+      resetSide('from');
+      resetSide('to');
+      document.getElementById('result').classList.remove('visible');
+      document.getElementById('err').classList.remove('visible');
+    } },
+  { target: ['.plan-mode'], title: 'Two ways to plan', text: 'To a destination: from where you are to one lift or place. Whole day: a full ski day, planned for you. First, a destination.' },
+  { target: ['#sheet'], title: 'Where are you?', text: 'Tapping the starting point opens this list: pick a lift or place, search for one, or pick it on the map. Restaurants and villages are here too.',
+    enter: () => { if (tourDemo) openSheet('from'); } },
+  { target: ['#to-chosen'], title: 'Where do you want to go?', text: () => `The destination is chosen the same way. As an example: from ${tourLiftName('from')} to ${tourLiftName('to')}. Bottom or Top says which station of the lift.`,
+    enter: () => {
+      closeSheet();
+      if (!tourDemo) return;
+      restoreStation('from', tourDemo.from);
+      restoreStation('to', tourDemo.to);
+    } },
+  { target: ['#plan-quick .prefs-row'], title: 'Your preferences', text: 'The difficulty you want, your pace, and lifts or pistes to avoid. They apply to every route.' },
+  { target: ['#plan-quick .plan-btn'], title: 'Calculate', text: 'Calculate route finds the way that suits you best.' },
   // Following it
-  { target: ['.route-picker-row'], title: 'Your route', text: 'The route you are on. Tap its name to switch to a recent or saved route.' },
+  { target: ['.route-picker-row'], title: 'Your route', text: 'Route shows the route you follow. Tap its name to switch to a recent or saved route.',
+    enter: () => { if (tourDemo) planRouteClicked(); } },
   { target: ['#p-progress'], title: 'How far you are', text: 'Steps done, and the km and time still to go.' },
-  { target: ['#steps .checkable.next', '#steps .checkable'], title: 'One step at a time', text: 'Each lift and piste with its number and colour, as on the signs, with time and length. Hold or swipe a step to avoid that lift or piste.' },
-  { target: ['#steps .checkable.next .step-check'], title: 'Tick it off', text: 'Done with a step? Tap its circle: the next one lights up.',
-    until: () => (quickTracker?.done || 0) >= 1 },
-  { target: ['#route-save-menu.open .step-menu-panel', '#route-save'], title: 'Save it', text: 'Tap ★, give the route a name and tap Save. You can plan it again any time.',
-    allow: ['#route-save-menu'], until: () => !!shownSavedQuick() },
+  { target: ['#steps .checkable'], title: 'One step at a time', text: 'Each lift and piste with its number and colour, as on the signs, with its time and length. Hold or swipe a step to avoid that lift or piste.' },
+  { target: ['#steps .checkable .step-check'], title: 'Tick it off', text: 'Done with a step? Tap its circle: it is ticked off and the next one lights up.',
+    demo: () => document.querySelector('#steps .checkable.next .step-check')?.click() },
+  { target: ['#route-save'], title: 'Save it', text: 'Tap ★ to save the route with a name. Then you can open it again any time.',
+    enter: () => window.scrollTo(0, 0) },
   // On the map
-  { target: ['#nav-map'], tap: true, title: 'Map', text: 'Tap Map.' },
-  { target: ['#q-map'], title: 'Your route on the map', text: 'The step you are on is drawn thick, the next ones thinner. Zoom in for piste numbers and restaurants.' },
-  { target: ['#q-mapstep .map-step-check'], title: 'Tick it off here too', text: 'The step you are at is named above the map. Tap the circle when it is done.',
-    until: () => (quickTracker?.done || 0) >= 2 },
+  { target: ['#q-map'], title: 'Map', text: 'Map shows the same route. The step you are on is drawn thick, the next ones thinner. Zoom in for piste numbers and restaurants.',
+    enter: () => { if (tourDemo) navTo('map'); } },
+  { target: ['#q-mapstep'], title: 'Tick it off here too', text: 'The step you are at is named above the map. Tap its circle when it is done; the map moves on to the next step.',
+    demo: () => document.querySelector('#q-mapstep .map-step-check')?.click() },
   { target: ['.map-gps-btn'], title: 'Where am I', text: 'Shows where you are on the mountain.' },
   { target: ['.map-compass-btn'], title: 'Turn the map', text: 'Turns the map like the piste map at the lift, or back to north up.' },
   // A whole day
-  { target: ['#nav-plan'], tap: true, title: 'A whole day', text: 'Tap Plan again.' },
-  { target: ['#mode-day'], title: 'Whole day', text: 'Tap Whole day.', until: () => planMode === 'day' },
+  { target: ['#mode-day'], title: 'Whole day', text: 'Whole day plans a full ski day for you, from a few things you fill in.',
+    enter: () => { navTo('plan'); setPlanMode('day'); window.scrollTo(0, 0); } },
   { target: ['#day-paywall'], title: 'Premium', text: 'The day planner is part of Premium: here you see what it gives and get it.' },
   { target: ['#dstart-box', '#dstart-chosen'], title: 'Start and end', text: 'Where your day starts, and where it ends if that is somewhere else.' },
   { target: ['#time-setting'], title: 'Time and distance', text: 'When you start and stop, and how many km you want to ski.' },
   { target: ['#stops-setting'], title: 'Lunch and stops', text: 'Lunch at a mountain restaurant, and places to pass: a lift, a viewpoint, a snow park.' },
-  { target: ['#day-card .plan-btn'], title: 'Plan my day', text: 'Plans your day and gives you a few routes to choose from, then you follow it like your route.' },
+  { target: ['#day-card .plan-btn'], title: 'Plan my day', text: 'Plans your day and gives you a few routes to choose from. You follow the one you choose like any route.' },
   // Your routes
-  { target: ['#nav-route'], tap: true, title: 'Your routes', text: 'Tap Route.' },
-  { target: ['#route-close'], title: 'Close the route', text: 'Tap ✕ to close the route and see all your routes.',
-    enter: () => window.scrollTo(0, 0),
-    until: () => document.getElementById('route-empty').style.display !== 'none' },
-  { target: ['#route-empty-saved'], title: 'Recent and saved', text: 'Tap a route to open it again. ✎ renames or deletes a saved route.' },
+  { target: ['#route-empty-saved', '#route-empty'], title: 'Your routes', text: 'With ✕ next to its name you close a route. Route then lists your recent and saved routes: tap one to open it again, ✎ renames or deletes it.',
+    enter: () => { if (!tourDemo) return; navTo('route'); closeRoute(); window.scrollTo(0, 0); } },
   // Settings
-  { target: ['#nav-account'], tap: true, title: 'Settings', text: 'Tap Settings.' },
-  { target: ['.settings-item[onclick="openPrefs()"]'], title: 'Route preferences', text: 'The difficulty you want, your pace, drag lifts, the ski bus, and lifts or pistes to avoid.' },
+  { target: ['.settings-item[onclick="openPrefs()"]'], title: 'Settings', text: 'Route preferences: the difficulty you want, your pace, drag lifts, the ski bus, and lifts or pistes to avoid.',
+    enter: () => { if (currentArea) navTo('account'); else openSettings(); } },
   { target: ['.settings-item[onclick="showAreaPicker()"]'], title: 'Ski area', text: 'Change your ski area here, or via its name at the top of Plan.' },
-  { target: ['.settings-item[onclick="showIntro()"]'], title: 'You are ready', text: 'Run this tour again here any time. Enjoy your ski day!' },
+  { target: ['.settings-item[onclick="showIntro()"]'], title: 'That is it', text: () => tourState?.area
+      ? 'Run this tour again here any time. Enjoy your ski day!'
+      : 'Run this tour again here any time. Now choose your own ski area, and enjoy your ski day!' },
 ];
 let introAt = 0;
-let introWait = null; // checking an `until` step
+let introToken = 0; // the step being shown; an `enter` or `demo` finishing late for an older step does nothing
 
 function maybeShowIntro() {
   if (document.documentElement.classList.contains('gated')) return; // after signing in
@@ -3014,12 +3035,118 @@ function maybeShowIntro() {
 }
 
 function showIntro() {
+  if (!document.getElementById('intro').hidden) return;
   introAt = 0;
+  tourBegin();
   document.getElementById('intro').hidden = false;
   document.body.classList.add('touring');
   renderIntro();
   cancelAnimationFrame(tourFrame);
   tourLoop();
+}
+
+// What the tour will change, kept to put back afterwards: the area, the
+// screen, the route to a destination (its stations, whether it was planned,
+// its ticks) and which route Route and Map show.
+function tourBegin() {
+  const keys = currentArea ? [progressKey('quick'), ACTIVE_KEY_PREFIX + currentArea.id] : [];
+  const storage = {};
+  keys.forEach(k => { try { storage[k] = localStorage.getItem(k); } catch {} });
+  const side = s => s && { id: s.id };
+  tourState = {
+    area: currentArea?.id || null,
+    screen: currentScreen(),
+    planMode: typeof planMode === 'string' ? planMode : 'quick',
+    from: side(selected.from), to: side(selected.to),
+    quick: currentArea ? plannerHasRoute('quick') : false,
+    active: activeRoute, routeClosed,
+    openedQuickId: typeof openedQuickId === 'undefined' ? null : openedQuickId,
+    storage,
+  };
+  tourDemo = currentArea ? tourPickRoute() : null;
+}
+
+// An area to show the tour in: the one open, or else the example area.
+async function tourEnsureArea() {
+  if (currentArea) return true;
+  for (let i = 0; i < 50 && !AREAS.length; i++) await new Promise(r => setTimeout(r, 200)); // the list still loading
+  const meta = AREAS.find(a => a.id === TOUR_EXAMPLE_AREA) || AREAS[0];
+  if (!meta) return false;
+  await selectArea(meta);
+  if (!currentArea) return false;
+  tourDemo = tourPickRoute();
+  return true;
+}
+
+// The example route: from the bottom of a lift to a place a few lifts and
+// pistes away, so the route has something to show.
+function tourPickRoute() {
+  const lifts = (LIFTS || []).filter(l => STATIONS[l.dal] && STATIONS[l.berg]);
+  const ends = lifts.map(l => l.dal);
+  let best = null, tries = 0;
+  for (const start of lifts.slice(0, 15)) {
+    for (const end of ends) {
+      if (end === start.dal || ++tries > 120) continue;
+      const r = dijkstra(start.dal, end);
+      const n = r?.path?.length || 0;
+      if (n >= 5 && n <= 12) return { from: start.dal, to: end };
+      if (n && (!best || Math.abs(n - 7) < Math.abs(best.n - 7))) best = { from: start.dal, to: end, n };
+    }
+  }
+  return best && { from: best.from, to: best.to };
+}
+
+function tourLiftName(side) {
+  const s = selected[side];
+  return s ? `${liftCode(s.liftNr)} ${s.liftName}`.trim() : 'one lift';
+}
+
+// Put back what the tour changed. Without an area of your own, the example
+// area is closed again and the area picker asks for yours.
+function tourRestore() {
+  const st = tourState;
+  tourState = null;
+  tourDemo = null;
+  if (!st) return;
+  document.getElementById('route-save-menu')?.classList.remove('open');
+  if (document.getElementById('sheet').style.display !== 'none') closeSheet();
+  if (!st.area) {
+    if (currentArea) {
+      clearAreaSelections();
+      try { if (localStorage.getItem(LAST_AREA_KEY) === currentArea.id) localStorage.removeItem(LAST_AREA_KEY); } catch {}
+    }
+    leaveRouteMap();
+    activeRoute = null;
+    routeClosed = false;
+    currentArea = null;
+    resetSide('from');
+    resetSide('to');
+    document.getElementById('result').classList.remove('visible');
+    setPlanMode('quick');
+    showAreaPicker();
+    return;
+  }
+  if (!currentArea || currentArea.id !== st.area) return; // changed areas meanwhile: nothing to put back
+  Object.entries(st.storage).forEach(([k, v]) => {
+    try { if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch {}
+  });
+  if (typeof openedQuickId !== 'undefined') openedQuickId = st.openedQuickId;
+  resetSide('from');
+  resetSide('to');
+  document.getElementById('result').classList.remove('visible');
+  document.getElementById('err').classList.remove('visible');
+  if (st.from) restoreStation('from', st.from.id);
+  if (st.to) restoreStation('to', st.to.id);
+  if (st.quick) planRoute({ silent: true }); // its ticks come back from the stored progress
+  routeClosed = st.routeClosed;
+  activeRoute = null;
+  setActiveRoute(st.active);
+  setPlanMode(st.planMode);
+  const tab = { plan: 'plan', route: document.getElementById('route-screen').dataset.view === 'map' ? 'map' : 'route' }[st.screen];
+  if (st.screen === 'picker') showAreaPicker();
+  else if (tab) navTo(tab);
+  else if (SETTINGS_SCREENS.includes(st.screen)) navTo('account');
+  window.scrollTo(0, 0);
 }
 
 // The first of a step's targets that is on screen now.
@@ -3033,40 +3160,38 @@ function tourTarget(step) {
   return null;
 }
 
-function renderIntro() {
-  clearInterval(introWait);
+async function renderIntro() {
+  const token = ++introToken;
   const step = INTRO_STEPS[introAt];
-  step.enter?.();
-  // An explaining step whose part is not on screen (no map button without a
-  // map, say) is left out
-  if (step.target && !step.tap && !step.until && !tourTarget(step) && introAt < INTRO_STEPS.length - 1) {
+  const tour = document.getElementById('intro');
+  tour.classList.add('is-busy'); // the note waits while the step sets up (an area loading)
+  try { await step.enter?.(); } catch (err) { console.error('Tour step:', err); }
+  if (token !== introToken || tour.hidden) return;
+  tour.classList.remove('is-busy');
+  // A step whose part is not on screen (no map button without a map, say) is left out
+  if (step.target && !tourTarget(step) && introAt < INTRO_STEPS.length - 1) {
     introAt++;
     return renderIntro();
   }
   const last = introAt === INTRO_STEPS.length - 1;
-  // The app's own button moves the tour on; if that button is not on screen,
-  // Next does, so the tour can never get stuck
-  const doing = (step.tap && tourTarget(step)) || step.until;
-  document.getElementById('intro-title').textContent = step.title;
-  document.getElementById('intro-text').textContent = step.text;
+  const text = v => typeof v === 'function' ? v() : v;
+  document.getElementById('intro-title').textContent = text(step.title);
+  document.getElementById('intro-text').textContent = text(step.text);
   document.getElementById('intro-dots').textContent = `${introAt + 1} / ${INTRO_STEPS.length}`;
-  // The area picker makes room at the top for the note while it is lit up
+  // The area picker and the station list make room at the top for the note
   document.body.classList.toggle('tour-room-top', ['#area-picker', '#sheet'].includes((step.target || [])[0]));
   document.getElementById('intro-back').style.display = 'none';
-  document.getElementById('intro-next').style.display = doing ? 'none' : '';
-  document.getElementById('intro-next').textContent = last ? 'Get started' : 'Next';
+  document.getElementById('intro-next').textContent = last ? 'Done' : 'Next';
   document.querySelector('#intro .tour-skip').style.visibility = last ? 'hidden' : '';
-  document.getElementById('intro').classList.toggle('is-doing', !!doing);
-  if (step.until) introWait = setInterval(() => { if (step.until()) introStep(1); }, 300);
   tourLast = '';
   // Bring the part into view once the screen has opened (the frame loop then follows it)
   setTimeout(() => {
+    if (token !== introToken) return;
     const t = tourTarget(step);
-    if (!t) return;
-    const r = t.getBoundingClientRect();
-    // explanations are centred; a button to tap only when it is out of sight (scrolled away)
-    if ((!step.until && !step.tap) || r.top < 0 || r.bottom > innerHeight) t.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    if (t && !t.closest('.tabbar')) t.scrollIntoView({ block: 'center', behavior: 'smooth' });
   }, 80);
+  // Show it happen: a moment after the note appears
+  if (step.demo) setTimeout(() => { if (token === introToken && !tour.hidden) step.demo(); }, 1100);
 }
 
 // Light up the target and put the note next to it, its arrow on the target.
@@ -3124,26 +3249,19 @@ function placeTour() {
   arrow.style.left = `${Math.max(18, Math.min(bw - 18, r.left + r.width / 2 - left))}px`;
 }
 
-// During the tour only the tour's own note and the lit-up control respond.
-// A tap on the control asked for moves the tour on, once the app has
-// opened what it opens.
+// During the tour nothing in the app responds to a tap: only the tour's own
+// note (Next, Skip). The tour's own clicks (ticking a step) go through.
 document.addEventListener('click', event => {
   const tour = document.getElementById('intro');
-  if (!tour || tour.hidden || !event.isTrusted) return; // the app's own clicks (ticking from the map) go through
+  if (!tour || tour.hidden || !event.isTrusted) return;
   if (event.target.closest('#tour-bubble')) return;
-  const step = INTRO_STEPS[introAt];
-  if ((step.allow || []).some(sel => event.target.closest(sel))) return; // e.g. the save sheet a step opens
-  const target = (step.tap || step.until) && tourTarget(step);
-  if (target && target.contains(event.target)) {
-    if (step.tap) setTimeout(() => introStep(1), 120);
-    return;
-  }
   event.preventDefault();
   event.stopPropagation();
 }, true);
 
 function introStep(delta) {
   document.activeElement?.blur?.(); // no focus ring left on the tapped button
+  if (document.getElementById('intro').classList.contains('is-busy')) return;
   const next = introAt + delta;
   if (next >= INTRO_STEPS.length) return closeIntro();
   introAt = Math.max(0, next);
@@ -3151,18 +3269,20 @@ function introStep(delta) {
 }
 
 function closeIntro() {
-  clearInterval(introWait);
+  introToken++;
   cancelAnimationFrame(tourFrame);
   document.body.classList.remove('tour-room-top');
   document.getElementById('intro').hidden = true;
+  document.getElementById('intro').classList.remove('is-busy');
   document.body.classList.remove('touring');
   try { localStorage.setItem(INTRO_SEEN_KEY, '1'); } catch {}
+  tourRestore();
 }
 
 document.addEventListener('keydown', event => {
   if (document.getElementById('intro')?.hidden !== false) return;
   if (event.key === 'Escape') closeIntro();
-  else if (event.key === 'ArrowRight' && !INTRO_STEPS[introAt].tap && !INTRO_STEPS[introAt].until) introStep(1);
+  else if (event.key === 'ArrowRight') introStep(1);
 });
 
 // ── Boot ─────────────────────────────────────────────────────────────────────

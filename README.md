@@ -140,20 +140,17 @@ areas it overlaps. For a few parts they are set under `splits` in
 di Fassa", which can be found by searching Val Gardena, Gröden, Selva, Ortisei and so on. The build
 report lists every part and what became of it.
 
-The first time the app opens (after signing in, when accounts are on) a hands-on **tour** has you
-plan a first route yourself, as someone new: choose an area, tap Plan, pick a start and a
-destination in the station list, tap Calculate route, tick off the first step, save the route
-with ★, tap Map and tick off the next step above the map. It then opens Whole day and explains
-its fields (start and end, time and km, lunch and stops, Plan my day) without planning one,
-closes the route to show recent and saved routes, and ends in Settings. Steps that ask you to do
-something wait until it is done (`until`); a sheet a step opens (the station list, the save
-sheet) is lit up and usable (`allow`). Only the lit-up control responds while the tour runs; Skip
-is always there. The area list shows as for someone new (no last area, no favourites). The light
-and the note follow the screen every frame (a pop-up sliding in, the keyboard, scrolling); the
-note goes above or below the part where it fits without covering it, and the area picker and the
-station list leave room at the top for it. A step asking for a tap whose control is not on screen
-shows Next instead, so the tour never gets
-stuck. **Settings → Tour** runs it
+The first time the app opens (after signing in, when accounts are on) a **tour** demonstrates the
+app with an example route; you only tap Next. The tour does everything itself: it shows the area
+picker, plans a route (it opens the station list, fills in a start and destination it picked so
+the route has a few steps, and calculates it), ticks off a step in the list and one above the map,
+shows Whole day and its fields, closes the route to show recent and saved routes, and ends in
+Settings. Nothing in the app responds to a tap meanwhile, and when the tour ends or is skipped
+everything is put back as it was (`tourBegin`/`tourRestore`: the stations, the planned route and
+its ticks, the route shown, the screen). Without an area yet it opens an example area
+(`TOUR_EXAMPLE_AREA`) and closes it again at the end, so you choose your own. The light and the
+note follow the screen every frame; the note goes above or below the part where it fits, and the
+area picker and the station list leave room at the top for it. **Settings → Tour** runs it
 again (`INTRO_STEPS`, `showIntro`, `placeTour`; seen once, kept as `skirouter:intro-seen`). The area picker is a **pop-up** over the app (`showAreaPicker`). Before an area is open it is
 all there is: the tab bar shows behind it, dimmed, and its buttons cannot be used yet. Once an area
 is open the pop-up opens from the area's name in the header (shown on the Plan tab only; Settings

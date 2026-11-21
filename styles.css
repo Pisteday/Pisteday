@@ -4483,9 +4483,12 @@ body:not(.has-area) .tabbar-btn {
   pointer-events: auto;
 }
 
-/* A step where you tap the app itself: the note waits, no Next */
-.tour.is-doing .tour-title::before {
-  content: '👆 ';
+/* A step still setting up (an example area loading): the note waits */
+.tour.is-busy .tour-bubble {
+  opacity: 0.6;
+}
+.tour.is-busy .tour-next {
+  pointer-events: none;
 }
 
 .tour[hidden] {
@@ -4728,11 +4731,6 @@ body.tour-room-top.picker-open #area-picker {
 
 body.touring .area-picker-close {
   display: none;
-}
-
-/* The tour stays on top of the save sheet a step opens, framing its panel. */
-body.touring #route-save-menu {
-  z-index: 2090;
 }
 
 /* Choosing a start or destination in the tour: the sheet leaves room for the note above it. */
