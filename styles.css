@@ -5076,3 +5076,21 @@ html.installing body {
 body.touring #route-menu {
   z-index: 2090;
 }
+
+/* Changing a saved route to a destination (Change plan), above its start and destination */
+.quick-editing {
+  margin: -2px 0 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--snow);
+  border: 1.5px solid var(--ice);
+}
+.quick-editing span {
+  flex: 1;
+}
+.quick-editing .link-btn {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 4px 0;
+  font-size: 0.85rem;
+}

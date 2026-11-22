@@ -355,6 +355,11 @@
   <div class="card" id="quick-card">
     <div class="card-title"><i data-i="route"></i> Plan your route</div>
 
+    <!-- Changing a saved route to a destination (Change plan): Update this route stores it -->
+    <div class="save-day-editing quick-editing" id="quick-edit" style="display:none"><i data-i="edit"></i>
+      <span>Changing <strong id="quick-edit-name"></strong></span>
+      <button class="link-btn" type="button" onclick="stopEditingQuick()">Stop changing</button></div>
+
     <div class="route-inputs">
 
       <!-- Starting point -->
@@ -399,7 +404,7 @@
       <span class="setting-chev"><i data-i="right"></i></span>
     </button>
 
-    <button class="plan-btn" type="button" onclick="planRouteClicked()">Calculate route</button>
+    <button class="plan-btn" id="quick-plan-btn" type="button" onclick="planRouteClicked()">Calculate route</button>
     <div class="error-msg" id="err"></div>
   </div><!-- /card -->
 
