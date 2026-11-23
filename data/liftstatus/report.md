@@ -1,16 +1,17 @@
 # Live lift status: sources
 
-Run 2026-11-21T21:15 UTC, 6 min. 2176 candidate sources, 136 with lifts.
+Run 2026-11-23T15:23 UTC, 8 min. 2175 candidate sources, 137 with lifts.
 
-**103 areas with live lift status** (at least 75 % of their named lifts matched).
+**104 areas with live lift status** (at least 75 % of their named lifts matched).
 
-- Per country: AT 54, FR 18, CH 15, IT 8, DE 7, LI 1
-- Per provider: intermaps 78, lumiplan 17, infosnow 6, micado 3
+- Per country: AT 54, FR 19, CH 15, IT 8, DE 7, LI 1
+- Per provider: intermaps 78, lumiplan 18, infosnow 6, micado 3
 
 | Area | Country | Source | Match | Live |
 |---|---|---|---:|---|
 | Bad Kleinkirchheim | AT | intermaps winter.intermaps.com/bad_kleinkirchheim | 100 % | yes |
 | Brandnertal – Brand/​Bürserberg | AT | intermaps winter.intermaps.com/brandnertal | 100 % | yes |
+| Damüls | AT | intermaps winter.intermaps.com/damuels_mellau_faschina | 100 % | yes |
 | Galtür | AT | intermaps winter.intermaps.com/galtuer | 100 % | yes |
 | Gerlitzen Alpe | AT | intermaps winter.intermaps.com/gerlitzen | 100 % | yes |
 | Golm | AT | intermaps winter.intermaps.com/golm | 100 % | yes |
@@ -33,7 +34,6 @@ Run 2026-11-21T21:15 UTC, 6 min. 2176 candidate sources, 136 with lifts.
 | Silvretta Montafon | AT | intermaps winter.intermaps.com/montafon | 100 % | yes |
 | Ski amadé: Flachau, Wagrain | AT | intermaps winter.intermaps.com/salzburger_sportwelt | 100 % | yes |
 | Ski Gastein - Schlossalm/Angertal/Stubnerkogel | AT | intermaps winter.intermaps.com/ski_gastein | 100 % | yes |
-| Skigebiet Damüls-Mellau-Faschina | AT | intermaps winter.intermaps.com/damuels_mellau_faschina | 100 % | yes |
 | Skigebiet Petzen | AT | intermaps winter.intermaps.com/petzen | 100 % | yes |
 | Turracher Höhe | AT | intermaps winter.intermaps.com/turracher_hoehe | 100 % | yes |
 | Venet | AT | intermaps winter.intermaps.com/venet | 100 % | yes |
@@ -83,14 +83,16 @@ Run 2026-11-21T21:15 UTC, 6 min. 2176 candidate sources, 136 with lifts.
 | Tauplitz / Bad Mitterndorf | AT | intermaps winter.intermaps.com/tauplitz | 94 % | yes |
 | Flumserberg | CH | infosnow pid 37 | 94 % | yes |
 | Engelberg Titlis | CH | intermaps winter.intermaps.com/engelberg | 93 % | yes |
-| Les Gets-Morzine | FR | intermaps winter.intermaps.com/portes_du_soleil | 93 % | yes |
 | Berwang | AT | intermaps winter.intermaps.com/berwang | 92 % | yes |
 | Kals-Matrei | AT | intermaps winter.intermaps.com/kals_matrei | 92 % | yes |
 | Pizol | CH | infosnow pid 47 | 92 % | yes |
 | Sudelfeld - Bayrischzell | DE | intermaps winter.intermaps.com/sudelfeld | 92 % | yes |
+| Espace Liberté | FR | intermaps winter.intermaps.com/portes_du_soleil | 92 % | yes |
+| Méribel | FR | lumiplan meribel | 92 % | yes |
 | Grächen | CH | infosnow pid 52 | 91 % | yes |
 | Sonnenkopf | AT | intermaps winter.intermaps.com/sonnenkopf | 90 % | yes |
 | Les Arcs | FR | lumiplan les-arcs | 89 % | yes |
+| Drei Zinnen - Tre Cime, Drei Zinnen, Tre Cime | IT | intermaps winter.intermaps.com/drei_zinnen | 89 % | yes |
 | Gargellen | AT | intermaps winter.intermaps.com/gargellen | 88 % | yes |
 | Weißsee Gletscherwelt | AT | intermaps winter.intermaps.com/weisssee_gletscherwelt | 88 % | yes |
 | Le Lioran | FR | lumiplan le-lioran | 88 % | yes |
@@ -98,7 +100,6 @@ Run 2026-11-21T21:15 UTC, 6 min. 2176 candidate sources, 136 with lifts.
 | Dreiländereck - Arnoldstein | AT | intermaps winter.intermaps.com/dreilaendereck | 86 % | yes |
 | Großglockner Heiligenblut | AT | intermaps winter.intermaps.com/heiligenblut | 86 % | yes |
 | Hochrindl | AT | intermaps winter.intermaps.com/hochrindl | 86 % | yes |
-| Drei Zinnen - Tre Cime, Drei Zinnen, Tre Cime | IT | intermaps winter.intermaps.com/drei_zinnen | 86 % | yes |
 | Obergurgl-Hochgurgl | AT | intermaps winter.intermaps.com/obergurgl_hochgurgl | 85 % | yes |
 | Grebenzen | AT | intermaps winter.intermaps.com/grebenzen | 83 % | yes |
 | Klippitztörl | AT | intermaps winter.intermaps.com/klippitztoerl | 83 % | yes |
@@ -120,9 +121,8 @@ Run 2026-11-21T21:15 UTC, 6 min. 2176 candidate sources, 136 with lifts.
 | Skigebiet Oberwiesenthal | DE | intermaps winter.intermaps.com/fichtelberg | 71 % | no |
 | Raurisertal | AT | intermaps winter.intermaps.com/rauris | 60 % | no |
 | Sulden | IT | intermaps winter.intermaps.com/sulden | 60 % | no |
-| Méribel | FR | lumiplan meribel | 59 % | no |
 | Loser-Altaussee | AT | intermaps winter.intermaps.com/loser | 43 % | no |
-| Galibier-Thabor | FR | lumiplan valloire | 43 % | no |
+| Galibier-Thabor | FR | lumiplan galibier-thabor | 43 % | no |
 | Goldeck | AT | intermaps winter.intermaps.com/goldeck | 40 % | no |
 | Forêt Blanche : Vars/Risoul | FR | lumiplan risoul | 39 % | no |
 | Balme - Vallorcine | FR | lumiplan chamonix | 33 % | no |

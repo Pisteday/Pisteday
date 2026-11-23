@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-21",
+ "updated": "2026-11-23",
  "minShare": 75,
  "areas": {
   "4-vallees-verbier-la-tzoumaz-nendaz-veys-ch": {
@@ -134,10 +134,22 @@
     }
    ]
   },
+  "damuls-at": {
+   "name": "Damüls",
+   "country": "AT",
+   "share": 100,
+   "bron": "intermaps.com",
+   "sources": [
+    {
+     "provider": "intermaps",
+     "project": "https://winter.intermaps.com/damuels_mellau_faschina"
+    }
+   ]
+  },
   "drei-zinnen-tre-cime-drei-zinnen-tre-cim-it": {
    "name": "Drei Zinnen - Tre Cime, Drei Zinnen, Tre Cime",
    "country": "IT",
-   "share": 86,
+   "share": 89,
    "bron": "intermaps.com",
    "sources": [
     {
@@ -167,6 +179,18 @@
     {
      "provider": "intermaps",
      "project": "https://winter.intermaps.com/engelberg"
+    }
+   ]
+  },
+  "espace-liberte-fr": {
+   "name": "Espace Liberté",
+   "country": "FR",
+   "share": 92,
+   "bron": "intermaps.com",
+   "sources": [
+    {
+     "provider": "intermaps",
+     "project": "https://winter.intermaps.com/portes_du_soleil"
     }
    ]
   },
@@ -616,18 +640,6 @@
     }
    ]
   },
-  "les-gets-morzine-fr": {
-   "name": "Les Gets-Morzine",
-   "country": "FR",
-   "share": 93,
-   "bron": "intermaps.com",
-   "sources": [
-    {
-     "provider": "intermaps",
-     "project": "https://winter.intermaps.com/portes_du_soleil"
-    }
-   ]
-  },
   "les-menuires-fr": {
    "name": "Les Ménuires",
    "country": "FR",
@@ -673,6 +685,18 @@
     {
      "provider": "intermaps",
      "project": "https://winter.intermaps.com/malbun"
+    }
+   ]
+  },
+  "meribel-fr": {
+   "name": "Méribel",
+   "country": "FR",
+   "share": 92,
+   "bron": "lumiplan.pro",
+   "sources": [
+    {
+     "provider": "lumiplan",
+     "station": "meribel"
     }
    ]
   },
@@ -1001,18 +1025,6 @@
     {
      "provider": "intermaps",
      "project": "https://winter.intermaps.com/ski_gastein"
-    }
-   ]
-  },
-  "skigebiet-damuls-mellau-faschina-at": {
-   "name": "Skigebiet Damüls-Mellau-Faschina",
-   "country": "AT",
-   "share": 100,
-   "bron": "intermaps.com",
-   "sources": [
-    {
-     "provider": "intermaps",
-     "project": "https://winter.intermaps.com/damuels_mellau_faschina"
     }
    ]
   },
