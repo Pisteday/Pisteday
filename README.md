@@ -509,6 +509,15 @@ several pistes avoids all of them). Avoided pistes are kept per area next to the
 
 ## Accounts and the season pass
 
+**Now off: no personal data.** `config.js` has no Supabase project filled in, so the app runs
+without accounts: no sign-in, no email address, date of birth or country; everything is free
+(the day planner too), and preferences and saved routes stay on the phone (`skirouter:local-days`).
+The app talks only to GitHub (the site on GitHub Pages; live lift status from
+raw.githubusercontent.com), so `privacy.html` says just that: nothing about you is kept. The
+account code below stays in place: filling in `supabaseUrl` and `supabaseAnonKey` again (they
+are in a comment in `config.js`) turns accounts back on, and then the privacy policy needs the
+full text again (email, date of birth, country, Supabase as processor).
+
 Everyone signs in: email address, password, date of birth (16 and over, GDPR art. 8) and
 country. The preferences (`skirouter:prefs`, favourite areas, avoided lifts and pistes) go
 with the account, so they follow you to another phone. A free account plans quick routes;
