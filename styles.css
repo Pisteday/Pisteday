@@ -404,6 +404,22 @@ header {
   border-radius: 0 0 18px 18px;
 }
 
+/* The strip behind the phone's status bar, under the clock and battery:
+   always the header's dark blue, also when the page is scrolled. Safari
+   (iOS 26) colours the status bar after what is fixed at the top of the
+   page; without it the bar takes the light page colour, a grey haze with
+   dark text over the header. Zero high where there is no status bar. */
+.status-bar-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: env(safe-area-inset-top);
+  background: var(--bg-081629);
+  z-index: 1500; /* over the page and its sheets; under the pop-ups, the tour and the install screen */
+  pointer-events: none;
+}
+
 /* Gentle snowfall; off for people who prefer reduced motion */
 .snowfall {
   position: absolute;
